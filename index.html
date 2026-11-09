@@ -33,8 +33,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
 #lightningBtn.open{background:linear-gradient(135deg,#3a8fd0,#2a5fa0);color:#fff;
   box-shadow:0 0 30px rgba(80,180,255,.9),0 4px 0 #05070a}
 
-#panel{position:absolute;bottom:80px;right:12px;width:min(420px,calc(100% - 24px));
-  max-height:70vh;pointer-events:auto;
+#panel{position:absolute;bottom:80px;right:12px;width:min(440px,calc(100% - 24px));
+  max-height:72vh;pointer-events:auto;
   background:rgba(9,13,20,.97);border:2px solid #26304a;border-radius:10px;
   display:flex;flex-direction:column;overflow:hidden;
   box-shadow:0 0 0 2px #05070a,0 15px 40px rgba(0,0,0,.9);
@@ -46,8 +46,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
 #panelHeader .close{background:none;border:none;color:#8fa0c0;font-size:18px;cursor:pointer;padding:0 4px}
 
 #realmBar{display:flex;align-items:center;gap:6px;padding:6px 8px;background:#0c121c;
-  border-bottom:2px solid #26304a;flex-shrink:0;overflow-x:auto}
-#realmBar::-webkit-scrollbar{display:none}
+  border-bottom:2px solid #26304a;flex-shrink:0;overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#2a3446 #0c121c;min-height:36px}
+#realmBar::-webkit-scrollbar{height:5px}
+#realmBar::-webkit-scrollbar-track{background:#0c121c}
+#realmBar::-webkit-scrollbar-thumb{background:#2a3446;border-radius:3px}
 .realmChip{flex:0 0 auto;display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:5px;
   border:2px solid #26304a;background:#141b28;font-size:10px;font-weight:bold;cursor:pointer;
   color:#9fb4d8;transition:.12s;white-space:nowrap}
@@ -56,25 +59,36 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
   box-shadow:0 0 8px rgba(80,150,255,.6)}
 .realmChip .pop{opacity:.7;font-size:9px}
 
-#tabs{display:flex;gap:3px;overflow-x:auto;scrollbar-width:none;padding:5px 6px 4px;
-  background:#0c121c;flex-shrink:0;border-bottom:1px solid #1a2438}
-#tabs::-webkit-scrollbar{display:none}
+#tabsWrap{position:relative;background:#0c121c;border-bottom:1px solid #1a2438;flex-shrink:0}
+#tabs{display:flex;gap:3px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;
+  scrollbar-color:#4a7ac0 #0c121c;padding:5px 6px 6px;
+  -webkit-overflow-scrolling:touch}
+#tabs::-webkit-scrollbar{height:5px}
+#tabs::-webkit-scrollbar-track{background:#0c121c}
+#tabs::-webkit-scrollbar-thumb{background:#4a7ac0;border-radius:3px}
 .tab{flex:0 0 auto;background:#131a26;border:2px solid #26304a;border-radius:5px;color:#8fa0c0;
   font-family:inherit;font-size:9.5px;font-weight:bold;padding:5px 8px;cursor:pointer;
   letter-spacing:.3px;transition:.12s;text-transform:uppercase}
 .tab.active{color:#fff;background:#1e2c44;border-color:#4a7ac0;
   box-shadow:0 0 8px rgba(74,122,192,.55) inset}
+.tabArrow{position:absolute;top:0;bottom:5px;width:20px;display:flex;align-items:center;
+  justify-content:center;background:linear-gradient(90deg,#0c121c,transparent);color:#6fa8ff;
+  font-size:14px;cursor:pointer;z-index:2;font-weight:bold;user-select:none}
+.tabArrow.right{right:0;background:linear-gradient(270deg,#0c121c,transparent)}
+.tabArrow.left{left:0}
 
-#tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:4px;
-  overflow-y:auto;padding:6px;flex:1;min-height:80px}
+#tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:4px;
+  overflow-y:auto;overflow-x:hidden;padding:6px;flex:1;min-height:90px;max-height:34vh;
+  -webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#2a3446 #0c121c}
 #tools::-webkit-scrollbar{width:6px}
+#tools::-webkit-scrollbar-track{background:#0c121c}
 #tools::-webkit-scrollbar-thumb{background:#2a3446;border-radius:3px}
 .tool{aspect-ratio:1;display:flex;align-items:center;justify-content:center;
-  background:#141b28;border:2px solid #26304a;border-radius:5px;font-size:18px;cursor:pointer;
+  background:#141b28;border:2px solid #26304a;border-radius:5px;font-size:17px;cursor:pointer;
   transition:.1s;position:relative;line-height:1}
 .tool:hover{background:#1c2738;border-color:#3a4a6a}
 .tool.active{background:#2f6fd0;border-color:#8fc0ff;box-shadow:0 0 12px rgba(80,150,255,.7);transform:scale(1.05)}
-.tool .lb{position:absolute;bottom:1px;left:0;right:0;font-size:6.5px;text-align:center;
+.tool .lb{position:absolute;bottom:1px;left:0;right:0;font-size:6.3px;text-align:center;
   color:#9fb4d8;font-weight:bold;letter-spacing:-.2px;pointer-events:none;
   text-shadow:0 1px 2px #000;overflow:hidden;white-space:nowrap}
 .tool.active .lb{color:#fff}
@@ -88,7 +102,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
 #brushrow input[type=range]::-moz-range-track{height:8px;background:#131a26;border:2px solid #26304a;border-radius:4px}
 #brushrow input[type=range]::-moz-range-thumb{width:16px;height:16px;background:#4a7ac0;border:2px solid #8fc0ff;border-radius:3px}
 
-#logArea{overflow-y:auto;padding:6px 8px;font-size:10.5px;line-height:1.5;flex:1;min-height:100px}
+#logArea{overflow-y:auto;padding:6px 8px;font-size:10.5px;line-height:1.5;flex:1;
+  min-height:100px;max-height:36vh;-webkit-overflow-scrolling:touch}
 #logArea::-webkit-scrollbar{width:6px}
 #logArea::-webkit-scrollbar-thumb{background:#2a3446;border-radius:3px}
 .logEntry{padding:4px 6px;margin-bottom:3px;border-left:3px solid #26304a;background:#0c121c;
@@ -98,7 +113,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
 .logEntry.disc{border-color:#ffd040;color:#ffe890}
 .logEntry.war{border-color:#e050e0;color:#e090e0}
 .logEntry .ts{color:#4a5a7a;font-size:9px;margin-right:4px}
-.discGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:4px;padding:2px}
+.discGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:4px;padding:2px;
+  overflow-y:auto;max-height:34vh;-webkit-overflow-scrolling:touch}
 .discCard{background:#141b28;border:2px solid #26304a;border-radius:5px;padding:5px 3px;
   text-align:center;font-size:9px;color:#cfa040;font-weight:bold;position:relative;overflow:hidden}
 .discCard .ic{font-size:18px;display:block;margin-bottom:1px}
@@ -134,6 +150,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
   font-size:10px;color:#8fc0ff;font-weight:bold;letter-spacing:.5px;pointer-events:none;
   opacity:0;transition:opacity .3s;white-space:nowrap;z-index:12}
 #deliveryHint.show{opacity:1}
+
+#saveIndicator{position:absolute;top:52px;left:6px;background:rgba(9,13,20,.9);
+  border:2px solid #3ac96b;border-radius:5px;padding:3px 8px;font-size:9px;color:#8fe0a8;
+  font-weight:bold;opacity:0;transition:opacity .3s;pointer-events:none;z-index:12}
+#saveIndicator.show{opacity:1}
 
 #setupScreen{position:fixed;inset:0;background:linear-gradient(180deg,#05070a,#0a1020,#05070a);
   z-index:100;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:16px}
@@ -173,14 +194,22 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
   box-shadow:0 0 20px rgba(80,150,255,.5),0 4px 0 #0a1428;transition:.1s}
 #startBtn:active{transform:translateY(3px);box-shadow:0 0 20px rgba(80,150,255,.5)}
 #startBtn:hover{background:linear-gradient(180deg,#3a8fe0,#2a5ab0)}
+#continueBox{display:none;margin-bottom:12px;padding:10px;background:#0c2a18;
+  border:2px solid #3ac96b;border-radius:8px;text-align:center}
+#continueBox.show{display:block}
+#continueBox p{font-size:10px;color:#8fe0a8;margin-bottom:8px}
+#continueBtn{width:100%;padding:10px;background:linear-gradient(180deg,#3ac96b,#2a8a4a);
+  border:2px solid #8fe0a8;border-radius:6px;color:#fff;font-family:inherit;font-size:13px;
+  font-weight:bold;letter-spacing:1px;cursor:pointer}
 @media(max-width:520px){
   .tab{font-size:8.5px;padding:4px 6px}
   .tool{font-size:15px}
-  #panel{max-height:65vh;width:calc(100% - 20px)}
+  #panel{max-height:70vh;width:calc(100% - 20px)}
   #lightningBtn{width:52px;height:52px;font-size:22px;bottom:10px;right:10px}
   #panel{bottom:70px;right:10px}
   .setRow label{flex:0 0 100px;font-size:10px}
   #setupBox h1{font-size:16px}
+  #tools{max-height:28vh}
 }
 </style>
 </head>
@@ -191,6 +220,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
   <div id="setupBox">
     <h1>⚡ WORLDBOX ⚡</h1>
     <div class="sub">CREA TU MUNDO — CONFIGURA LAS REGLAS DEL CAOS</div>
+
+    <div id="continueBox">
+      <p>💾 Hay una partida guardada</p>
+      <button id="continueBtn">▶ CONTINUAR PARTIDA GUARDADA</button>
+    </div>
 
     <div class="setSection">
       <h2>◈ POBLACIÓN INICIAL</h2>
@@ -239,6 +273,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
   </div>
 
   <div id="deliveryHint"></div>
+  <div id="saveIndicator">💾 Guardado</div>
 
   <div id="panel" class="hidden">
     <div id="panelHeader">
@@ -246,7 +281,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
       <button class="close" id="panelClose">✕</button>
     </div>
     <div id="realmBar"></div>
-    <div id="tabs"></div>
+    <div id="tabsWrap">
+      <div class="tabArrow left" id="tabLeft">‹</div>
+      <div id="tabs"></div>
+      <div class="tabArrow right" id="tabRight">›</div>
+    </div>
     <div id="tools"></div>
     <div id="brushrow">
       <span>CEPILLO</span>
@@ -263,6 +302,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
     <div class="row"><label>Tasa de Natalidad <span class="val" id="vBirth">1.0x</span></label><input type="range" id="rBirth" min="0" max="40" value="10"></div>
     <div class="row"><label>Velocidad <span class="val" id="vSpeed">1x</span></label><input type="range" id="rSpeed" min="1" max="5" value="1"></div>
     <div class="row"><label>Longevidad <span class="val" id="vLife">1.0x</span></label><input type="range" id="rLife" min="5" max="30" value="10"></div>
+    <button class="btn" id="btnSave">💾 GUARDAR AHORA</button>
     <button class="btn" id="btnRegen">🌍 NUEVO MUNDO</button>
     <button class="btn" id="btnPeace">🕊 PAZ GLOBAL</button>
     <button class="btn" id="btnKill">☠ ANIQUILAR TODO</button>
@@ -303,7 +343,6 @@ const TDN=[0,0,1,2,3,4,5,6,8,3,3];
 
 const terrain=new Uint8Array(MAP_W*MAP_H);
 const shade=new Uint8Array(MAP_W*MAP_H);
-// Mapa de propiedad de reinos (0 = neutral, 1..N = id+1)
 const ownership=new Int16Array(MAP_W*MAP_H);
 
 const PAL=TCOL.map(hex=>{
@@ -499,10 +538,7 @@ function spawnEffect(x,y,r,color,type){
   if(effects.length>400)return;
   effects.push({x,y,r,color,type:type||'boom',life:0.6,maxLife:0.6});
 }
-
-/* ═══ ANIMACIONES DE ENTREGA ═══ */
 function playDeliveryAnimation(type,x,y,color){
-  // Animación específica por tipo
   const anims={
     wood:{color:'#8a5a2a',dur:1.2,type:'plant'},
     stone:{color:'#8a8a8a',dur:1.0,type:'drop'},
@@ -526,6 +562,7 @@ let realmHistory=[];
 function logEvent(type,realmName,msg){
   realmHistory.unshift({ts:worldTime,year:1+Math.floor(worldTime/8),type,realm:realmName,msg});
   if(realmHistory.length>200)realmHistory.length=200;
+  dirtySave=true;
 }
 
 function newFaction(x,y,name){
@@ -540,7 +577,6 @@ function newFaction(x,y,name){
   return f;
 }
 
-/* Expansión de territorio */
 function expandTerritory(f){
   if(!f||f.extinct)return;
   const rad=f.pop>0?Math.min(14,4+f.pop*0.4):3;
@@ -553,13 +589,10 @@ function expandTerritory(f){
       if(d>rad)continue;
       const i=y*MAP_W+x;
       if(WATER(terrain[i])||terrain[i]===T.LAVA)continue;
-      // Expansión con probabilidad según distancia
       const prob=1-d/rad;
       if(Math.random()<prob*0.04){
-        // Solo si no hay otro reino
         if(ownership[i]===0||ownership[i]===f.id+1){
-          ownership[i]=f.id+1;
-          count++;
+          ownership[i]=f.id+1;count++;
         }
       }
     }
@@ -632,7 +665,6 @@ function factionTick(dt){
       if(f.religion&&f.gold>=5&&Math.random()<dt*0.05){f.buildings.templos++;f.gold-=5;logEvent('good',f.name,`⛪ Templo a ${f.religion}`);}
     }
     tryDiscover(f,dt);
-    // Expansión de territorio
     if(Math.random()<dt*0.3)expandTerritory(f);
     if(f.discovered.alquimia&&Math.random()<dt*0.15){
       if(f.wood>=3&&f.stone>=2){f.wood-=2;f.stone-=1;f.gold+=1;}
@@ -656,7 +688,6 @@ function factionTick(dt){
     }
     if(f.pop<=0&&!f.extinct){
       f.extinct=true;logEvent('bad',f.name,`💀 Reino extinto`);
-      // Liberar territorio
       for(let k=0;k<ownership.length;k++)if(ownership[k]===f.id+1)ownership[k]=0;
     }
   }
@@ -951,10 +982,6 @@ function lighten(hex,amt){
   const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
   const f=v=>Math.min(255,Math.round(v+(255-v)*amt));return `rgb(${f(r)},${f(g)},${f(b)})`;
 }
-function hexToRgb(hex){
-  if(hex[0]==='r'){const m=hex.match(/\d+/g);return [+m[0],+m[1],+m[2]];}
-  return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];
-}
 const NODE_COLOR={wood:'#8a5a2a',stone:'#8a8a8a',iron:'#b0b8c8',gold:'#ffd040',gems:'#60e0ff',food:'#c8e040'};
 
 function render(){
@@ -967,7 +994,6 @@ function render(){
   ctx.imageSmoothingEnabled=false;
   ctx.drawImage(mapCanvas,ox,oy,MAP_W*ts,MAP_H*ts);
 
-  // ═══ TERRITORIO DE REINOS ═══
   const x0=Math.max(0,(cam.x|0)-1),y0=Math.max(0,(cam.y|0)-1);
   const x1=Math.min(MAP_W,x0+Math.ceil(W/ts)+2),y1=Math.min(MAP_H,y0+Math.ceil(H/ts)+2);
   ctx.globalAlpha=0.38;
@@ -981,8 +1007,6 @@ function render(){
     }
   }
   ctx.globalAlpha=1;
-
-  // Borde de territorio
   ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=1;
   for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
     const i=y*MAP_W+x;
@@ -991,8 +1015,6 @@ function render(){
       if(y+1<MAP_H&&ownership[i+MAP_W]!==ownership[i])ctx.strokeRect(ox+x*ts,oy+y*ts+ts-1,ts,1);
     }
   }
-
-  // Fuego
   if(ts>1.5){
     for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
       const i=y*MAP_W+x;
@@ -1003,7 +1025,6 @@ function render(){
       }
     }
   }
-
   for(const z of zones){
     const [sx,sy]=w2s(z.x-z.r,z.y-z.r);const r=z.r*ts*2;
     ctx.globalAlpha=0.14+0.06*Math.sin(worldTime*6);
@@ -1069,14 +1090,11 @@ function render(){
       if(u.shield>0){ctx.strokeStyle='#6fd0ff';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(sx,sy-s*0.5,s*0.9,0,6.283);ctx.stroke();}
     }
   }
-
-  // ═══ EFECTOS CON ANIMACIONES DE ENTREGA ═══
   for(const e of effects){
     const [sx,sy]=w2s(e.x,e.y);
     const p=e.life/e.maxLife;
     const age=e.maxLife-e.life;
     ctx.globalAlpha=1;
-
     if(e.type==='boom'){
       ctx.globalAlpha=p;ctx.fillStyle=e.color;
       const r=e.r*ts*(1.6-p*0.6);
@@ -1094,115 +1112,80 @@ function render(){
     }else if(e.type==='heart'){
       ctx.globalAlpha=p;ctx.fillStyle='#ff70b0';
       ctx.fillRect(sx-3,sy-8-((1-p)*10),6,6);
-    }
-    // ═══ ANIMACIONES DE ENTREGA ═══
-    else if(e.type==='delivery_plant'){
-      // Árbol creciendo
+    }else if(e.type==='delivery_plant'){
       const grow=Math.min(1,age*2);
-      ctx.globalAlpha=p;
-      ctx.fillStyle='#5a3a1a';
+      ctx.globalAlpha=p;ctx.fillStyle='#5a3a1a';
       ctx.fillRect(sx-ts*0.15,sy-ts*0.5*grow-ts*0.5,ts*0.3,ts*0.5*grow+ts*0.5);
-      ctx.fillStyle='#2a8a3a';
-      const crown=ts*0.7*grow;
+      ctx.fillStyle='#2a8a3a';const crown=ts*0.7*grow;
       ctx.beginPath();ctx.arc(sx,sy-ts*0.5*grow-ts*0.8,crown,0,6.283);ctx.fill();
       ctx.fillStyle='#3aa84a';
       ctx.beginPath();ctx.arc(sx-ts*0.2,sy-ts*0.5*grow-ts*0.9,crown*0.6,0,6.283);ctx.fill();
-    }
-    else if(e.type==='delivery_drop'){
-      // Recurso cayendo
+    }else if(e.type==='delivery_drop'){
       const fallY=sy-ts*3*(1-Math.min(1,age*3));
-      ctx.globalAlpha=Math.min(1,p*2);
-      ctx.fillStyle=e.color;
+      ctx.globalAlpha=Math.min(1,p*2);ctx.fillStyle=e.color;
       ctx.fillRect(sx-ts*0.3,fallY-ts*0.3,ts*0.6,ts*0.6);
-      ctx.fillStyle='#fff';ctx.globalAlpha=0.3;
+      ctx.fillStyle='#fff';ctx.globalAlpha*=0.3;
       ctx.fillRect(sx-ts*0.3,fallY-ts*0.3,ts*0.6,ts*0.15);
-    }
-    else if(e.type==='delivery_sparkle'){
-      // Destellos de oro/gemas
+    }else if(e.type==='delivery_sparkle'){
       ctx.globalAlpha=p;
       for(let i=0;i<6;i++){
-        const a=i/6*6.283+age*4;
-        const r=ts*(0.5+age*1.5);
+        const a=i/6*6.283+age*4;const r=ts*(0.5+age*1.5);
         ctx.fillStyle=e.color;
         ctx.fillRect(sx+Math.cos(a)*r-ts*0.1,sy+Math.sin(a)*r-ts*0.1,ts*0.2,ts*0.2);
       }
       ctx.fillStyle=e.color;
       ctx.beginPath();ctx.arc(sx,sy,ts*0.5*(1-age/2),0,6.283);ctx.fill();
-    }
-    else if(e.type==='delivery_hop'){
-      // Animales saltando
+    }else if(e.type==='delivery_hop'){
       const hopY=Math.abs(Math.sin(age*6))*ts*1.5;
-      ctx.globalAlpha=p;
-      ctx.fillStyle=e.color;
+      ctx.globalAlpha=p;ctx.fillStyle=e.color;
       ctx.fillRect(sx-ts*0.4,sy-ts*0.6-hopY,ts*0.8,ts*0.5);
       ctx.fillStyle='#000a';
       ctx.fillRect(sx-ts*0.3,sy-ts*0.6-hopY-ts*0.1,ts*0.2,ts*0.15);
-    }
-    else if(e.type==='delivery_bomb'){
-      // Bomba cayendo
+    }else if(e.type==='delivery_bomb'){
       const fallY=sy-ts*5*(1-Math.min(1,age*2));
-      ctx.globalAlpha=Math.min(1,p*2);
-      ctx.fillStyle='#222';
+      ctx.globalAlpha=Math.min(1,p*2);ctx.fillStyle='#222';
       ctx.beginPath();ctx.arc(sx,fallY,ts*0.5,0,6.283);ctx.fill();
-      ctx.fillStyle='#ff6020';
-      ctx.fillRect(sx-ts*0.1,fallY-ts*0.8,ts*0.2,ts*0.3);
-      // chispa
-      if(Math.random()<0.5){
-        ctx.fillStyle='#ffdd40';
-        ctx.fillRect(sx+rnd(-ts,ts),fallY+rnd(-ts,ts),ts*0.15,ts*0.15);
-      }
-    }
-    else if(e.type==='delivery_nuke'){
+      ctx.fillStyle='#ff6020';ctx.fillRect(sx-ts*0.1,fallY-ts*0.8,ts*0.2,ts*0.3);
+      if(Math.random()<0.5){ctx.fillStyle='#ffdd40';ctx.fillRect(sx+rnd(-ts,ts),fallY+rnd(-ts,ts),ts*0.15,ts*0.15);}
+    }else if(e.type==='delivery_nuke'){
       const fallY=sy-ts*8*(1-Math.min(1,age*1.5));
-      ctx.globalAlpha=Math.min(1,p*2);
-      ctx.fillStyle='#ffdd40';
+      ctx.globalAlpha=Math.min(1,p*2);ctx.fillStyle='#ffdd40';
       ctx.beginPath();ctx.arc(sx,fallY,ts*0.7,0,6.283);ctx.fill();
       ctx.fillStyle='#ff6020';
       ctx.beginPath();ctx.arc(sx,fallY,ts*0.4,0,6.283);ctx.fill();
       ctx.strokeStyle='#ffdd40';ctx.lineWidth=2;
       ctx.beginPath();ctx.arc(sx,fallY,ts*1.2,0,6.283);ctx.stroke();
-    }
-    else if(e.type==='delivery_summon'){
-      // Monstruo apareciendo
-      const grow=Math.min(1,age*1.5);
-      ctx.globalAlpha=p;
-      ctx.fillStyle='#800020';
-      ctx.beginPath();ctx.arc(sx,sy,ts*1.5*(1-grow*0.3),0,6.283);ctx.fill();
-      ctx.fillStyle=e.color;
-      ctx.fillRect(sx-ts*0.6*grow,sy-ts*0.8*grow,ts*1.2*grow,ts*0.8*grow);
+    }else if(e.type==='delivery_summon'){
+      const grow=Math.min(1,age*1.5);ctx.globalAlpha=p;
+      ctx.fillStyle='#800020';ctx.beginPath();ctx.arc(sx,sy,ts*1.5*(1-grow*0.3),0,6.283);ctx.fill();
+      ctx.fillStyle=e.color;ctx.fillRect(sx-ts*0.6*grow,sy-ts*0.8*grow,ts*1.2*grow,ts*0.8*grow);
       ctx.fillStyle='#ff3020';
       ctx.fillRect(sx-ts*0.3*grow,sy-ts*0.6*grow,ts*0.2,ts*0.2);
       ctx.fillRect(sx+ts*0.1*grow,sy-ts*0.6*grow,ts*0.2,ts*0.2);
-    }
-    else if(e.type==='delivery_bless'){
+    }else if(e.type==='delivery_bless'){
       ctx.globalAlpha=p;
       for(let i=0;i<8;i++){
-        const a=i/8*6.283+age*2;
-        const r=ts*(0.8+age*1.2);
+        const a=i/8*6.283+age*2;const r=ts*(0.8+age*1.2);
         ctx.fillStyle='#ffffc0';
         ctx.fillRect(sx+Math.cos(a)*r-ts*0.1,sy+Math.sin(a)*r-ts*0.1,ts*0.2,ts*0.2);
       }
       ctx.fillStyle='#fff8d0';
       ctx.beginPath();ctx.arc(sx,sy,ts*0.6*(1-age/3),0,6.283);ctx.fill();
-    }
-    else if(e.type==='delivery_curse'){
+    }else if(e.type==='delivery_curse'){
       ctx.globalAlpha=p;
       for(let i=0;i<6;i++){
-        const a=i/6*6.283-age*2;
-        const r=ts*(0.8+age*1.5);
+        const a=i/6*6.283-age*2;const r=ts*(0.8+age*1.5);
         ctx.fillStyle='#a030a0';
         ctx.fillRect(sx+Math.cos(a)*r-ts*0.15,sy+Math.sin(a)*r-ts*0.15,ts*0.3,ts*0.3);
       }
       ctx.fillStyle='#402040';
       ctx.beginPath();ctx.arc(sx,sy,ts*0.7*(1-age/3),0,6.283);ctx.fill();
-    }
-    else{
+    }else{
       ctx.globalAlpha=p;ctx.fillStyle=e.color;
       ctx.beginPath();ctx.arc(sx,sy,e.r*ts*(1.3-p*0.4),0,6.283);ctx.fill();
     }
     ctx.globalAlpha=1;
   }
-
   for(const p of projectiles){
     const k=p.t/p.dur;
     const px=p.sx+(p.tx-p.sx)*k,py=p.sy+(p.ty-p.sy)*k;
@@ -1213,10 +1196,8 @@ function render(){
     ctx.globalAlpha=0.35;ctx.fillStyle='#ffaa40';
     ctx.beginPath();ctx.arc(sx,sy,s,0,6.283);ctx.fill();ctx.globalAlpha=1;
   }
-
   if(mouse.inScreen&&!panMode){
     const r=cfg.brush*cam.ts;
-    // Si hay reino seleccionado, mostrar su territorio
     ctx.strokeStyle='rgba(120,200,255,.85)';ctx.lineWidth=2;
     ctx.beginPath();ctx.arc(mouse.x,mouse.y,r,0,6.283);ctx.stroke();
     ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=1;
@@ -1235,20 +1216,6 @@ function brushCircle(tx,ty,r,cb){
       const dx=x+0.5-tx,dy=y+0.5-ty;
       if(dx*dx+dy*dy<=r*r)cb(x,y);
     }
-}
-
-/* Aplicar a reino seleccionado o al punto */
-function deliverToRealmOrPoint(type, x, y, applyFn, realmFn, animType){
-  if(selectedFaction>=0&&factions[selectedFaction]&&!factions[selectedFaction].extinct){
-    const f=factions[selectedFaction];
-    if(realmFn)realmFn(f);
-    playDeliveryAnimation(animType||type, f.x, f.y);
-    toast(`⚡ Enviado a ${f.name}`);
-  }else{
-    applyFn(x,y);
-    playDeliveryAnimation(animType||type, x, y);
-    toast(`⚡ Enviado al punto`);
-  }
 }
 
 /* TERRENO */
@@ -1305,6 +1272,7 @@ function placeNode(type,amount,animType){return (x,y,r)=>{
     playDeliveryAnimation(animType||type,x,y);
     toast(`⚡ Recurso plantado`);
   }
+  dirtySave=true;
 };}
 addTool('res','wood','🪵','Madera',placeNode('wood',40,'wood'));
 addTool('res','stone','🪨','Piedra',placeNode('stone',40,'stone'));
@@ -1314,108 +1282,30 @@ addTool('res','gems','💎','Gemas',placeNode('gems',10,'gems'));
 addTool('res','food','🌾','Comida',placeNode('food',50,'food'));
 
 /* BENDICIONES */
-addTool('bless','heal','❤️','Curar',(x,y,r)=>{
-  queryNear(x,y,r+2,o=>{if(!o.dead){o.hp=o.maxHp;o.infected=0;}});
-  spawnEffect(x,y,r+1,'#60ff90','ring');playDeliveryAnimation('bless',x,y);
-},'Curar');
-addTool('bless','shield','🛡','Escudo',(x,y,r)=>{
-  queryNear(x,y,r+2,o=>{if(!o.dead)o.shield=30;});
-  spawnEffect(x,y,r+1,'#6fd0ff','ring');playDeliveryAnimation('bless',x,y);
-},'Escudo');
-addTool('bless','speed','⚡','Velocidad',(x,y,r)=>{
-  queryNear(x,y,r+2,o=>{if(!o.dead)o.speedBoost=2.6;});
-  spawnEffect(x,y,r+1,'#ffe060','ring');playDeliveryAnimation('bless',x,y);
-},'Velocidad');
-addTool('bless','fertility','💞','Fertilidad',(x,y,r)=>{
-  queryNear(x,y,r+3,o=>{if(!o.dead&&o.kind==='human')o.breedCd=0;});
-  spawnEffect(x,y,r+1,'#ff80c0','ring');playDeliveryAnimation('bless',x,y);
-},'Fertilidad');
-addTool('bless','immortal','✨','Inmortal',(x,y,r)=>{
-  queryNear(x,y,r+2,o=>{if(!o.dead)o.immortal=true;});
-  spawnEffect(x,y,r+1,'#ffffff','ring');playDeliveryAnimation('bless',x,y);
-},'Inmortal');
-addTool('bless','rain','🌧','Lluvia',(x,y,r)=>{
-  brushCircle(x,y,r+2,(a,b)=>{if(a<0||b<0||a>=MAP_W||b>=MAP_H)return;fire[b*MAP_W+a]=0;});
-  spawnEffect(x,y,r+2,'#60a0ff','smoke');playDeliveryAnimation('bless',x,y);
-},'Lluvia');
-addTool('bless','peace','🕊','Paz',(x,y,r)=>{
-  for(const f of factions)f.war={};
-  toast('LA PAZ REINA EN EL MUNDO');logEvent('good','Todos','🕊 Paz global');
-  spawnEffect(x,y,4,'#ffffff','ring');playDeliveryAnimation('bless',x,y);
-},'Paz');
+addTool('bless','heal','❤️','Curar',(x,y,r)=>{queryNear(x,y,r+2,o=>{if(!o.dead){o.hp=o.maxHp;o.infected=0;}});spawnEffect(x,y,r+1,'#60ff90','ring');playDeliveryAnimation('bless',x,y);},'Curar');
+addTool('bless','shield','🛡','Escudo',(x,y,r)=>{queryNear(x,y,r+2,o=>{if(!o.dead)o.shield=30;});spawnEffect(x,y,r+1,'#6fd0ff','ring');playDeliveryAnimation('bless',x,y);},'Escudo');
+addTool('bless','speed','⚡','Velocidad',(x,y,r)=>{queryNear(x,y,r+2,o=>{if(!o.dead)o.speedBoost=2.6;});spawnEffect(x,y,r+1,'#ffe060','ring');playDeliveryAnimation('bless',x,y);},'Velocidad');
+addTool('bless','fertility','💞','Fertilidad',(x,y,r)=>{queryNear(x,y,r+3,o=>{if(!o.dead&&o.kind==='human')o.breedCd=0;});spawnEffect(x,y,r+1,'#ff80c0','ring');playDeliveryAnimation('bless',x,y);},'Fertilidad');
+addTool('bless','immortal','✨','Inmortal',(x,y,r)=>{queryNear(x,y,r+2,o=>{if(!o.dead)o.immortal=true;});spawnEffect(x,y,r+1,'#ffffff','ring');playDeliveryAnimation('bless',x,y);},'Inmortal');
+addTool('bless','rain','🌧','Lluvia',(x,y,r)=>{brushCircle(x,y,r+2,(a,b)=>{if(a<0||b<0||a>=MAP_W||b>=MAP_H)return;fire[b*MAP_W+a]=0;});spawnEffect(x,y,r+2,'#60a0ff','smoke');playDeliveryAnimation('bless',x,y);},'Lluvia');
+addTool('bless','peace','🕊','Paz',(x,y,r)=>{for(const f of factions)f.war={};toast('LA PAZ REINA');logEvent('good','Todos','🕊 Paz global');spawnEffect(x,y,4,'#ffffff','ring');playDeliveryAnimation('bless',x,y);},'Paz');
 
 /* DESASTRES */
-addTool('disaster','meteor','☄️','Meteorito',(x,y)=>{
-  projectiles.push({sx:x+rnd(-20,20),sy:y-40,tx:x,ty:y,t:0,dur:0.9,r:5,power:250});
-  playDeliveryAnimation('bomb',x,y);
-},'Meteorito');
-addTool('disaster','earthquake','〰️','Terremoto',(x,y,r)=>{
-  shake=Math.max(shake,18);
-  for(let i=0;i<40;i++){
-    const a=Math.random()*6.283,d=Math.random()*r*2;
-    const tx=(x+Math.cos(a)*d)|0,ty=(y+Math.sin(a)*d)|0;
-    if(Math.random()<0.5)setTerrain(tx,ty,T.BURNT);
-  }
-  queryNear(x,y,r+3,o=>{if(!o.dead&&!o.immortal){o.hp-=60;if(o.hp<=0)killUnit(o);}});
-  spawnEffect(x,y,r+2,'#c0a080','ring');playDeliveryAnimation('bomb',x,y);
-},'Terremoto');
+addTool('disaster','meteor','☄️','Meteorito',(x,y)=>{projectiles.push({sx:x+rnd(-20,20),sy:y-40,tx:x,ty:y,t:0,dur:0.9,r:5,power:250});playDeliveryAnimation('bomb',x,y);},'Meteorito');
+addTool('disaster','earthquake','〰️','Terremoto',(x,y,r)=>{shake=Math.max(shake,18);for(let i=0;i<40;i++){const a=Math.random()*6.283,d=Math.random()*r*2;const tx=(x+Math.cos(a)*d)|0,ty=(y+Math.sin(a)*d)|0;if(Math.random()<0.5)setTerrain(tx,ty,T.BURNT);}queryNear(x,y,r+3,o=>{if(!o.dead&&!o.immortal){o.hp-=60;if(o.hp<=0)killUnit(o);}});spawnEffect(x,y,r+2,'#c0a080','ring');playDeliveryAnimation('bomb',x,y);},'Terremoto');
 addTool('disaster','tornado','🌪','Tornado',(x,y)=>{spawnTornado(x,y);playDeliveryAnimation('bomb',x,y);},'Tornado');
-addTool('disaster','tsunami','🌊','Tsunami',(x,y,r)=>{
-  const R=r+4;
-  for(let i=0;i<3;i++){
-    brushCircle(x,y,R-i*1.2,(a,b)=>{
-      if(a<0||b<0||a>=MAP_W||b>=MAP_H)return;
-      const i2=b*MAP_W+a;
-      if(!WATER(terrain[i2])&&Math.random()<0.85)setTerrain(a,b,T.SHALLOW);
-    });
-  }
-  queryNear(x,y,R+2,o=>{if(!o.dead&&!o.flying&&!o.immortal){o.hp-=45;if(o.hp<=0)killUnit(o);}});
-  spawnEffect(x,y,R,'#60a0ff','ring');playDeliveryAnimation('bomb',x,y);
-},'Tsunami');
-addTool('disaster','volcano','🌋','Volcán',(x,y,r)=>{
-  brushCircle(x,y,Math.max(1,r*0.6),(a,b)=>setTerrain(a,b,T.LAVA));
-  for(let i=0;i<25;i++){
-    const a=Math.random()*6.283,d=rnd(1,r+4);
-    const tx=(x+Math.cos(a)*d)|0,ty=(y+Math.sin(a)*d)|0;
-    if(tx>=0&&ty>=0&&tx<MAP_W&&ty<MAP_H&&Math.random()<0.6)setTerrain(tx,ty,T.LAVA);
-  }
-  for(let i=0;i<12;i++)spawnEffect(x+rnd(-3,3),y+rnd(-3,3),rnd(1,3),'#ff6020','smoke');
-  shake=Math.max(shake,10);playDeliveryAnimation('bomb',x,y);
-},'Volcán');
-addTool('disaster','acid','☣','Lluvia Ácida',(x,y,r)=>{
-  zones.push({x,y,r:r+3,life:14,dps:9,type:'acid'});
-  spawnEffect(x,y,r+3,'#80ff40','ring');playDeliveryAnimation('curse',x,y);
-},'Ácido');
+addTool('disaster','tsunami','🌊','Tsunami',(x,y,r)=>{const R=r+4;for(let i=0;i<3;i++){brushCircle(x,y,R-i*1.2,(a,b)=>{if(a<0||b<0||a>=MAP_W||b>=MAP_H)return;const i2=b*MAP_W+a;if(!WATER(terrain[i2])&&Math.random()<0.85)setTerrain(a,b,T.SHALLOW);});}queryNear(x,y,R+2,o=>{if(!o.dead&&!o.flying&&!o.immortal){o.hp-=45;if(o.hp<=0)killUnit(o);}});spawnEffect(x,y,R,'#60a0ff','ring');playDeliveryAnimation('bomb',x,y);},'Tsunami');
+addTool('disaster','volcano','🌋','Volcán',(x,y,r)=>{brushCircle(x,y,Math.max(1,r*0.6),(a,b)=>setTerrain(a,b,T.LAVA));for(let i=0;i<25;i++){const a=Math.random()*6.283,d=rnd(1,r+4);const tx=(x+Math.cos(a)*d)|0,ty=(y+Math.sin(a)*d)|0;if(tx>=0&&ty>=0&&tx<MAP_W&&ty<MAP_H&&Math.random()<0.6)setTerrain(tx,ty,T.LAVA);}for(let i=0;i<12;i++)spawnEffect(x+rnd(-3,3),y+rnd(-3,3),rnd(1,3),'#ff6020','smoke');shake=Math.max(shake,10);playDeliveryAnimation('bomb',x,y);},'Volcán');
+addTool('disaster','acid','☣','Lluvia Ácida',(x,y,r)=>{zones.push({x,y,r:r+3,life:14,dps:9,type:'acid'});spawnEffect(x,y,r+3,'#80ff40','ring');playDeliveryAnimation('curse',x,y);},'Ácido');
 addTool('disaster','fire','🔥','Incendio',(x,y,r)=>{brushCircle(x,y,r,(a,b)=>igniteTile(a,b));playDeliveryAnimation('bomb',x,y);},'Incendio');
-addTool('disaster','flood','💧','Inundación',(x,y,r)=>{
-  brushCircle(x,y,r+2,(a,b)=>{
-    if(a<0||b<0||a>=MAP_W||b>=MAP_H)return;
-    if(Math.random()<0.7)setTerrain(a,b,T.SHALLOW);
-  });
-  playDeliveryAnimation('bomb',x,y);
-},'Inundación');
+addTool('disaster','flood','💧','Inundación',(x,y,r)=>{brushCircle(x,y,r+2,(a,b)=>{if(a<0||b<0||a>=MAP_W||b>=MAP_H)return;if(Math.random()<0.7)setTerrain(a,b,T.SHALLOW);});playDeliveryAnimation('bomb',x,y);},'Inundación');
 
 /* BOMBAS */
 addTool('bombs','dynamite','🧨','Dinamita',(x,y)=>{detonate({tx:x,ty:y,r:4,power:180});playDeliveryAnimation('bomb',x,y);},'Dinamita');
-addTool('bombs','missile','🚀','Misil',(x,y)=>{
-  projectiles.push({sx:x-25,sy:y-30,tx:x,ty:y,t:0,dur:0.7,r:6,power:260});
-  playDeliveryAnimation('bomb',x,y);
-},'Misil');
-addTool('bombs','napalm','🔥','Napalm',(x,y,r)=>{
-  for(let i=0;i<4;i++){
-    const a=Math.random()*6.283,d=Math.random()*r*1.6;
-    detonate({tx:x+Math.cos(a)*d,ty:y+Math.sin(a)*d,r:3,power:90,napalm:true});
-  }
-  playDeliveryAnimation('bomb',x,y);
-},'Napalm');
-addTool('bombs','nuke','☢️','Bomba Nuclear',(x,y)=>{
-  projectiles.push({sx:x,sy:y-70,tx:x,ty:y,t:0,dur:1.2,r:13,power:900,nuke:true});
-  playDeliveryAnimation('nuke',x,y);
-},'Nuclear');
-addTool('bombs','hbe','💥','Bomba H',(x,y)=>{
-  projectiles.push({sx:x,sy:y-80,tx:x,ty:y,t:0,dur:1.5,r:20,power:2000,nuke:true});
-  playDeliveryAnimation('nuke',x,y);
-},'Bomba H');
+addTool('bombs','missile','🚀','Misil',(x,y)=>{projectiles.push({sx:x-25,sy:y-30,tx:x,ty:y,t:0,dur:0.7,r:6,power:260});playDeliveryAnimation('bomb',x,y);},'Misil');
+addTool('bombs','napalm','🔥','Napalm',(x,y,r)=>{for(let i=0;i<4;i++){const a=Math.random()*6.283,d=Math.random()*r*1.6;detonate({tx:x+Math.cos(a)*d,ty:y+Math.sin(a)*d,r:3,power:90,napalm:true});}playDeliveryAnimation('bomb',x,y);},'Napalm');
+addTool('bombs','nuke','☢️','Bomba Nuclear',(x,y)=>{projectiles.push({sx:x,sy:y-70,tx:x,ty:y,t:0,dur:1.2,r:13,power:900,nuke:true});playDeliveryAnimation('nuke',x,y);},'Nuclear');
+addTool('bombs','hbe','💥','Bomba H',(x,y)=>{projectiles.push({sx:x,sy:y-80,tx:x,ty:y,t:0,dur:1.5,r:20,power:2000,nuke:true});playDeliveryAnimation('nuke',x,y);},'Bomba H');
 
 /* MONSTRUOS */
 addTool('monsters','dragon','🐉','Dragón',(x,y)=>{spawn('dragon',x,y);playDeliveryAnimation('monster',x,y);},'Dragón');
@@ -1425,59 +1315,46 @@ addTool('monsters','ufo','🛸','OVNI',(x,y)=>{for(let i=0;i<2;i++)spawn('alien'
 addTool('monsters','necro','🧙','Nigromante',(x,y)=>{spawn('necro',x,y);playDeliveryAnimation('monster',x,y);},'Nigromante');
 addTool('monsters','kraken','🐙','Kraken',(x,y)=>{spawn('kraken',x,y);playDeliveryAnimation('monster',x,y);},'Kraken');
 addTool('monsters','giant','🦖','Bestia',(x,y)=>{spawn('giant',x,y);playDeliveryAnimation('monster',x,y);},'Bestia');
-addTool('monsters','plague','🦠','Pandemia',(x,y,r)=>{
-  queryNear(x,y,r+3,o=>{if(!o.dead&&o.kind==='human')o.infected=4;});
-  spawnEffect(x,y,r+2,'#8fe06a','ring');playDeliveryAnimation('curse',x,y);
-},'Pandemia');
+addTool('monsters','plague','🦠','Pandemia',(x,y,r)=>{queryNear(x,y,r+3,o=>{if(!o.dead&&o.kind==='human')o.infected=4;});spawnEffect(x,y,r+2,'#8fe06a','ring');playDeliveryAnimation('curse',x,y);},'Pandemia');
 
 /* REINO */
 addTool('realm','giftGold','💰','Dar Oro',(x,y)=>{
   if(selectedFaction>=0){const f=factions[selectedFaction];f.gold+=50;logEvent('good',f.name,'💰 +50 Oro divino');playDeliveryAnimation('gold',f.x,f.y);toast(`💰 Oro → ${f.name}`);}
   else toast('Selecciona un reino primero');
+  dirtySave=true;
 },'Dar Oro');
 addTool('realm','giftFood','🍞','Dar Comida',(x,y)=>{
   if(selectedFaction>=0){const f=factions[selectedFaction];f.food+=60;logEvent('good',f.name,'🍞 +60 Comida divina');playDeliveryAnimation('food',f.x,f.y);toast(`🍞 Comida → ${f.name}`);}
-  else toast('Selecciona un reino primero');
+  else toast('Selecciona un reino primero');dirtySave=true;
 },'Dar Comida');
 addTool('realm','giftWood','🪵','Dar Madera',(x,y)=>{
   if(selectedFaction>=0){const f=factions[selectedFaction];f.wood+=50;logEvent('good',f.name,'🪵 +50 Madera divina');playDeliveryAnimation('wood',f.x,f.y);toast(`🪵 Madera → ${f.name}`);}
-  else toast('Selecciona un reino primero');
+  else toast('Selecciona un reino primero');dirtySave=true;
 },'Dar Madera');
 addTool('realm','giftIron','⛏','Dar Hierro',(x,y)=>{
   if(selectedFaction>=0){const f=factions[selectedFaction];f.iron+=30;logEvent('good',f.name,'⛏ +30 Hierro divino');playDeliveryAnimation('iron',f.x,f.y);toast(`⛏ Hierro → ${f.name}`);}
-  else toast('Selecciona un reino primero');
+  else toast('Selecciona un reino primero');dirtySave=true;
 },'Dar Hierro');
 addTool('realm','giftGems','💎','Dar Gemas',(x,y)=>{
   if(selectedFaction>=0){const f=factions[selectedFaction];f.gems+=15;logEvent('good',f.name,'💎 +15 Gemas divinas');playDeliveryAnimation('gems',f.x,f.y);toast(`💎 Gemas → ${f.name}`);}
-  else toast('Selecciona un reino primero');
+  else toast('Selecciona un reino primero');dirtySave=true;
 },'Dar Gemas');
 addTool('realm','giftAnimals','🐑','Dar Animales',(x,y)=>{
-  if(selectedFaction>=0){const f=factions[selectedFaction];for(let i=0;i<4;i++){spawn(pick(['sheep','cow','chicken','pig']),f.x+rnd(-4,4),f.y+rnd(-4,4));}logEvent('good',f.name,'🐑 Animales divinos');playDeliveryAnimation('animals',f.x,f.y);toast(`🐑 Animales → ${f.name}`);}
+  if(selectedFaction>=0){const f=factions[selectedFaction];for(let i=0;i<4;i++)spawn(pick(['sheep','cow','chicken','pig']),f.x+rnd(-4,4),f.y+rnd(-4,4));logEvent('good',f.name,'🐑 Animales divinos');playDeliveryAnimation('animals',f.x,f.y);toast(`🐑 Animales → ${f.name}`);}
   else{for(let i=0;i<4;i++)spawn(pick(['sheep','cow','chicken','pig']),x+rnd(-3,3),y+rnd(-3,3));playDeliveryAnimation('animals',x,y);toast(`🐑 Animales plantados`);}
+  dirtySave=true;
 },'Dar Animales');
 addTool('realm','blessRealm','✨','Bendecir Reino',(x,y)=>{
-  if(selectedFaction>=0){
-    const f=factions[selectedFaction];
-    queryNear(f.x,f.y,20,o=>{if(!o.dead&&o.faction===selectedFaction){o.hp=o.maxHp;o.shield=20;o.immortal=true;}});
-    logEvent('good',f.name,'✨ Bendición divina');playDeliveryAnimation('bless',f.x,f.y);toast(`✨ ${f.name} bendecido`);
-  }else toast('Selecciona un reino primero');
+  if(selectedFaction>=0){const f=factions[selectedFaction];queryNear(f.x,f.y,20,o=>{if(!o.dead&&o.faction===selectedFaction){o.hp=o.maxHp;o.shield=20;o.immortal=true;}});logEvent('good',f.name,'✨ Bendición divina');playDeliveryAnimation('bless',f.x,f.y);toast(`✨ ${f.name} bendecido`);}
+  else toast('Selecciona un reino primero');dirtySave=true;
 },'Bendecir');
 addTool('realm','curseRealm','☠','Maldecir Reino',(x,y)=>{
-  if(selectedFaction>=0){
-    const f=factions[selectedFaction];
-    queryNear(f.x,f.y,20,o=>{if(!o.dead&&o.faction===selectedFaction)o.hp-=100;});
-    logEvent('bad',f.name,'☠ Maldición divina');playDeliveryAnimation('curse',f.x,f.y);toast(`☠ ${f.name} maldecido`);
-  }else toast('Selecciona un reino primero');
+  if(selectedFaction>=0){const f=factions[selectedFaction];queryNear(f.x,f.y,20,o=>{if(!o.dead&&o.faction===selectedFaction)o.hp-=100;});logEvent('bad',f.name,'☠ Maldición divina');playDeliveryAnimation('curse',f.x,f.y);toast(`☠ ${f.name} maldecido`);}
+  else toast('Selecciona un reino primero');dirtySave=true;
 },'Maldecir');
 addTool('realm','bombRealm','💣','Bombardear Reino',(x,y)=>{
-  if(selectedFaction>=0){
-    const f=factions[selectedFaction];
-    for(let i=0;i<5;i++){
-      const a=Math.random()*6.283,d=Math.random()*8;
-      detonate({tx:f.x+Math.cos(a)*d,ty:f.y+Math.sin(a)*d,r:4,power:200});
-    }
-    logEvent('bad',f.name,'💣 Bombardeo divino');playDeliveryAnimation('nuke',f.x,f.y);toast(`💣 ${f.name} bombardeado`);
-  }else toast('Selecciona un reino primero');
+  if(selectedFaction>=0){const f=factions[selectedFaction];for(let i=0;i<5;i++){const a=Math.random()*6.283,d=Math.random()*8;detonate({tx:f.x+Math.cos(a)*d,ty:f.y+Math.sin(a)*d,r:4,power:200});}logEvent('bad',f.name,'💣 Bombardeo divino');playDeliveryAnimation('nuke',f.x,f.y);toast(`💣 ${f.name} bombardeado`);}
+  else toast('Selecciona un reino primero');dirtySave=true;
 },'Bombardear');
 
 const tornadoes=[];
@@ -1509,6 +1386,9 @@ const panelEl=document.getElementById('panel');
 const lightningBtn=document.getElementById('lightningBtn');
 const realmBarEl=document.getElementById('realmBar');
 const deliveryHint=document.getElementById('deliveryHint');
+const saveIndicator=document.getElementById('saveIndicator');
+const tabLeft=document.getElementById('tabLeft');
+const tabRight=document.getElementById('tabRight');
 
 function togglePanel(force){
   const open=force!==undefined?force:panelEl.classList.contains('hidden');
@@ -1517,6 +1397,10 @@ function togglePanel(force){
 }
 lightningBtn.onclick=()=>togglePanel();
 document.getElementById('panelClose').onclick=()=>togglePanel(false);
+
+/* Flechas de scroll en tabs */
+tabLeft.onclick=()=>tabsEl.scrollBy({left:-120,behavior:'smooth'});
+tabRight.onclick=()=>tabsEl.scrollBy({left:120,behavior:'smooth'});
 
 function buildRealmBar(){
   realmBarEl.innerHTML='';
@@ -1537,6 +1421,7 @@ function buildRealmBar(){
         deliveryHint.classList.add('show');
         setTimeout(()=>deliveryHint.classList.remove('show'),2000);
       }
+      dirtySave=true;
     };
     realmBarEl.appendChild(chip);
   }
@@ -1548,9 +1433,21 @@ function buildTabs(){
     const b=document.createElement('button');
     b.className='tab'+(c.id===currentCat?' active':'');
     b.textContent=c.name;
-    b.onclick=()=>{currentCat=c.id;buildTabs();buildTools();};
+    b.onclick=()=>{
+      currentCat=c.id;buildTabs();buildTools();
+      // Auto-scroll al tab activo
+      setTimeout(()=>{
+        const active=tabsEl.querySelector('.tab.active');
+        if(active)active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+      },10);
+    };
     tabsEl.appendChild(b);
   }
+  // Auto-scroll inicial al tab activo
+  setTimeout(()=>{
+    const active=tabsEl.querySelector('.tab.active');
+    if(active)active.scrollIntoView({block:'nearest',inline:'center'});
+  },50);
 }
 
 function buildTools(){
@@ -1619,9 +1516,10 @@ rSpeed.oninput=()=>{speedMult=+rSpeed.value;vSpeed.textContent=speedMult+'x';};
 const rLife=document.getElementById('rLife'),vLife=document.getElementById('vLife');
 rLife.oninput=()=>{cfg.longevity=+rLife.value/10;vLife.textContent=cfg.longevity.toFixed(1)+'x';};
 
+document.getElementById('btnSave').onclick=()=>{saveGame();toast('💾 Partida guardada');};
 document.getElementById('btnRegen').onclick=()=>{resetWorld();toast('🌍 NUEVO MUNDO CREADO');};
 document.getElementById('btnPeace').onclick=()=>{for(const f of factions)f.war={};toast('🕊 PAZ GLOBAL');logEvent('good','Todos','🕊 Paz global');};
-document.getElementById('btnKill').onclick=()=>{for(const u of entities)u.dead=true;entities=[];toast('☠ MUNDO ANIQUILADO');};
+document.getElementById('btnKill').onclick=()=>{for(const u of entities)u.dead=true;entities=[];toast('☠ MUNDO ANIQUILADO');dirtySave=true;};
 
 const btnPause=document.getElementById('btnPause');
 btnPause.onclick=()=>{paused=!paused;btnPause.textContent=paused?'▶':'⏸';btnPause.classList.toggle('on',paused);};
@@ -1648,6 +1546,7 @@ function applyAt(sx,sy){
   const t=TOOLS.find(t=>t.id===currentTool);
   if(!t)return;
   t.fn(w.x,w.y,cfg.brush);
+  dirtySave=true;
 }
 
 function onDown(e){
@@ -1787,7 +1686,6 @@ function spawnInitialLife(men,women,realms){
     }
     peopleSpawned+=count;
     f.pop=m+w;
-    // Territorio inicial
     for(let k=0;k<3;k++)expandTerritory(f);
     for(let h=0;h<Math.min(4,Math.floor(f.pop/3));h++){
       const hx=s.x+rnd(-3,3),hy=s.y+rnd(-3,3);
@@ -1811,6 +1709,8 @@ function resetWorld(){
   spawnInitialLife(15,15,3);
   buildRealmBar();
   paused=false;btnPause.textContent='⏸';btnPause.classList.remove('on');
+  dirtySave=true;
+  saveGame();
 }
 
 function startGame(men,women,realms){
@@ -1824,7 +1724,193 @@ function startGame(men,women,realms){
   togglePanel(false);
   requestAnimationFrame(loop);
   toast('⚡ MUNDO CREADO ⚡');
+  dirtySave=true;
+  saveGame();
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   PERSISTENCIA
+   ═══════════════════════════════════════════════════════════════ */
+const SAVE_KEY='worldbox_divino_save_v1';
+let dirtySave=false;
+let lastSaveTime=0;
+
+function showSaveIndicator(){
+  saveIndicator.classList.add('show');
+  setTimeout(()=>saveIndicator.classList.remove('show'),900);
+}
+
+function serializeEntity(u){
+  return {
+    id:u.id,kind:u.kind,x:u.x,y:u.y,hp:u.hp,maxHp:u.maxHp,
+    age:u.age,maxAge:u.maxAge,gender:u.gender,faction:u.faction,
+    speed:u.speed,flying:u.flying,monster:u.monster,prey:u.prey,hunter:u.hunter,
+    dmg:u.dmg,size:u.size,color:u.color,
+    infected:u.infected,shield:u.shield,immortal:u.immortal,speedBoost:u.speedBoost,
+    breedCd:u.breedCd,summonCd:u.summonCd,king:u.king
+  };
+}
+function deserializeEntity(d){
+  const u={...d,dead:false,target:null,atkCd:0};
+  // Restaurar flags derivadas
+  const K=KIND[d.kind];
+  if(K){u.flying=!!K.flying;u.monster=!!K.monster;u.prey=!!K.prey;u.hunter=!!K.hunter;}
+  return u;
+}
+
+function serializeFaction(f){
+  return {
+    id:f.id,name:f.name,color:f.color,x:f.x,y:f.y,
+    houses:f.houses.map(h=>({x:h.x,y:h.y,type:h.type})),
+    pop:f.pop,food:f.food,wood:f.wood,stone:f.stone,iron:f.iron,gold:f.gold,gems:f.gems,
+    discovered:f.discovered,discoveryProgress:f.discoveryProgress,
+    religion:f.religion,war:f.war,age:f.age,tech:f.tech,extinct:f.extinct,
+    territory:f.territory,buildings:f.buildings
+  };
+}
+
+function saveGame(){
+  try{
+    const data={
+      v:1,
+      savedAt:Date.now(),
+      worldTime,
+      cfg:{...cfg},
+      speedMult,
+      worldCfg:{...worldCfg},
+      terrain:Array.from(terrain),
+      shade:Array.from(shade),
+      ownership:Array.from(ownership),
+      fire:Array.from(fire),
+      nextId,
+      factions:factions.map(serializeFaction),
+      entities:entities.filter(u=>!u.dead).map(serializeEntity),
+      nodes:nodes.map(n=>({x:n.x,y:n.y,type:n.type,amount:n.amount})),
+      realmHistory:realmHistory.slice(0,100),
+      selectedFaction
+    };
+    localStorage.setItem(SAVE_KEY,JSON.stringify(data));
+    lastSaveTime=Date.now();
+    showSaveIndicator();
+    dirtySave=false;
+    return true;
+  }catch(e){
+    console.warn('Error guardando:',e);
+    return false;
+  }
+}
+
+function loadGame(){
+  try{
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(!raw)return null;
+    const data=JSON.parse(raw);
+    if(!data||data.v!==1)return null;
+    return data;
+  }catch(e){
+    console.warn('Error cargando:',e);
+    return null;
+  }
+}
+
+function restoreGame(data){
+  try{
+    // Terreno
+    for(let i=0;i<terrain.length;i++){
+      terrain[i]=data.terrain[i]||0;
+      shade[i]=data.shade[i]||0;
+      ownership[i]=data.ownership[i]||0;
+      fire[i]=data.fire[i]||0;
+      paintTile(i%MAP_W,(i/MAP_W)|0);
+    }
+    mapDirty=true;mctx.putImageData(imgData,0,0);
+
+    worldTime=data.worldTime||0;
+    cfg={...cfg,...data.cfg};
+    speedMult=data.speedMult||1;
+    Object.assign(worldCfg,data.worldCfg||{});
+    nextId=data.nextId||1;
+    selectedFaction=data.selectedFaction!==undefined?data.selectedFaction:-1;
+
+    factions=(data.factions||[]).map(serializeFaction=>serializeFaction);
+    factions=JSON.parse(JSON.stringify(data.factions||[]));
+
+    entities=(data.entities||[]).map(deserializeEntity);
+    nodes=JSON.parse(JSON.stringify(data.nodes||[]));
+    realmHistory=data.realmHistory||[];
+
+    // Sincronizar UI
+    rRatio.value=Math.round(cfg.ratio*100);vRatio.textContent=rRatio.value+'%';
+    rBirth.value=Math.round(cfg.birthRate*10);vBirth.textContent=cfg.birthRate.toFixed(1)+'x';
+    rSpeed.value=speedMult;vSpeed.textContent=speedMult+'x';
+    btnSpeed.textContent='▶ '+speedMult+'x';
+    rLife.value=Math.round(cfg.longevity*10);vLife.textContent=cfg.longevity.toFixed(1)+'x';
+
+    // Tiempo offline
+    const now=Date.now();
+    const elapsed=(now-(data.savedAt||now))/1000;
+    if(elapsed>0){
+      console.log('Tiempo offline:',elapsed.toFixed(0),'s');
+    }
+    return elapsed;
+  }catch(e){
+    console.warn('Error restaurando:',e);
+    return 0;
+  }
+}
+
+/* Simulación offline: avanza el mundo por el tiempo que estuvo cerrado */
+function simulateOffline(seconds){
+  if(seconds<=0)return;
+  // Limitar a máximo 1 hora de simulación
+  const maxSec=Math.min(seconds,3600);
+  const simDt=0.5; // paso de simulación
+  let remaining=maxSec;
+  let iters=0;
+  const maxIters=2000; // límite de iteraciones
+  while(remaining>0&&iters<maxIters){
+    const step=Math.min(simDt,remaining);
+    // Simulación rápida (sin render)
+    aiAcc+=step;
+    let a=0;
+    while(aiAcc>=AI_DT&&a<4){aiTick(AI_DT);aiAcc-=AI_DT;a++;}
+    if(aiAcc>AI_DT*4)aiAcc=0;
+    moveUnits(step);
+    fireTick(step);
+    // Saltar efectos y partículas (no importan offline)
+    // Avanzar tiempo del mundo
+    worldTime+=step;
+    remaining-=step;
+    iters++;
+    // Cada cierto tiempo, log de resumen
+    if(iters%100===0){
+      const pop=entities.filter(u=>u.kind==='human').length;
+      logEvent('good','Sistema',`⏳ Simulación offline: ${Math.round(maxSec-iters*step)}s restantes (${pop} humanos)`);
+    }
+  }
+  // Resumen final
+  const pop=entities.filter(u=>u.kind==='human').length;
+  const aliveFactions=factions.filter(f=>!f.extinct).length;
+  logEvent('good','Sistema',`⏳ Tiempo offline: ${Math.round(maxSec)}s — ${pop} humanos, ${aliveFactions} reinos vivos`);
+}
+
+/* Autoguardado cada 5 segundos si hay cambios */
+let autoSaveTimer=0;
+function autoSaveTick(dt){
+  autoSaveTimer+=dt;
+  if(autoSaveTimer>=5&&dirtySave){
+    autoSaveTimer=0;
+    saveGame();
+  }
+}
+
+/* Guardar al cerrar/ocultar */
+window.addEventListener('beforeunload',()=>{if(dirtySave)saveGame();});
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    if(dirtySave)saveGame();
+  }
+});
 
 /* BUCLE */
 let last=performance.now();
@@ -1861,6 +1947,7 @@ function step(dt){
     if(t.life<=0)tornadoes.splice(i,1);
   }
   if(shake>0)shake=Math.max(0,shake-dt*30);
+  autoSaveTick(dt);
 }
 
 function updateStats(){
@@ -1889,6 +1976,29 @@ function loop(now){
   if(fpsAcc>0.5){sFps.textContent=Math.round(fpsCount/fpsAcc);fpsAcc=0;fpsCount=0;}
   statTimer+=dt;
   if(statTimer>0.3){statTimer=0;updateStats();}
+}
+
+/* Arranque: comprobar partida guardada */
+const savedData=loadGame();
+if(savedData){
+  document.getElementById('continueBox').classList.add('show');
+  document.getElementById('continueBtn').onclick=()=>{
+    document.getElementById('setupScreen').classList.add('hidden');
+    const elapsed=restoreGame(savedData);
+    buildRealmBar();buildTabs();buildTools();
+    togglePanel(false);
+    // Simular tiempo offline
+    if(elapsed>0){
+      toast(`⏳ Simulando ${Math.round(elapsed)}s offline...`);
+      setTimeout(()=>{
+        simulateOffline(elapsed);
+        buildRealmBar();
+        buildTools();
+        toast('✅ Mundo actualizado');
+      },100);
+    }
+    requestAnimationFrame(loop);
+  };
 }
 
 generateWorld();initCamera();buildTabs();buildTools();
