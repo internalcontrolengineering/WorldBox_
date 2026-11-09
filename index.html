@@ -77,9 +77,17 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
 .tabArrow.right{right:0;background:linear-gradient(270deg,#0c121c,transparent)}
 .tabArrow.left{left:0}
 
+/* Contenedor por defecto (Grid para iconos) */
 #tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:4px;
   overflow-y:auto;overflow-x:hidden;padding:6px;flex:1;min-height:90px;max-height:34vh;
   -webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#2a3446 #0c121c}
+
+/* Modo bloque para textos largos (Histórico y Descubrimientos) */
+#tools.mode-block { display: flex; flex-direction: column; gap: 0; padding: 0; }
+#tools.mode-block::-webkit-scrollbar{width:6px}
+#tools.mode-block::-webkit-scrollbar-track{background:#0c121c}
+#tools.mode-block::-webkit-scrollbar-thumb{background:#2a3446;border-radius:3px}
+
 #tools::-webkit-scrollbar{width:6px}
 #tools::-webkit-scrollbar-track{background:#0c121c}
 #tools::-webkit-scrollbar-thumb{background:#2a3446;border-radius:3px}
@@ -102,19 +110,22 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
 #brushrow input[type=range]::-moz-range-track{height:8px;background:#131a26;border:2px solid #26304a;border-radius:4px}
 #brushrow input[type=range]::-moz-range-thumb{width:16px;height:16px;background:#4a7ac0;border:2px solid #8fc0ff;border-radius:3px}
 
+/* Historial de eventos */
 #logArea{overflow-y:auto;padding:6px 8px;font-size:10.5px;line-height:1.5;flex:1;
-  min-height:100px;max-height:36vh;-webkit-overflow-scrolling:touch}
+  height:100%;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
 #logArea::-webkit-scrollbar{width:6px}
 #logArea::-webkit-scrollbar-thumb{background:#2a3446;border-radius:3px}
 .logEntry{padding:4px 6px;margin-bottom:3px;border-left:3px solid #26304a;background:#0c121c;
-  border-radius:3px;color:#9fb4d8}
+  border-radius:3px;color:#9fb4d8;word-break:break-word;white-space:normal}
 .logEntry.good{border-color:#3ac96b;color:#8fe0a8}
 .logEntry.bad{border-color:#e8503a;color:#e89080}
 .logEntry.disc{border-color:#ffd040;color:#ffe890}
 .logEntry.war{border-color:#e050e0;color:#e090e0}
 .logEntry .ts{color:#4a5a7a;font-size:9px;margin-right:4px}
-.discGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:4px;padding:2px;
-  overflow-y:auto;max-height:34vh;-webkit-overflow-scrolling:touch}
+
+/* Descubrimientos */
+.discGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:4px;padding:6px;
+  overflow-y:auto;height:100%;align-content:start;-webkit-overflow-scrolling:touch}
 .discCard{background:#141b28;border:2px solid #26304a;border-radius:5px;padding:5px 3px;
   text-align:center;font-size:9px;color:#cfa040;font-weight:bold;position:relative;overflow:hidden}
 .discCard .ic{font-size:18px;display:block;margin-bottom:1px}
@@ -142,7 +153,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
 #toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   background:rgba(9,13,20,.95);border:2px solid #4a7ac0;border-radius:6px;padding:10px 18px;
   font-size:12px;font-weight:bold;color:#8fc0ff;opacity:0;transition:opacity .3s;pointer-events:none;
-  letter-spacing:1px;text-align:center;max-width:90%}
+  letter-spacing:1px;text-align:center;max-width:90%;z-index:30}
 #toast.show{opacity:1}
 
 #deliveryHint{position:absolute;top:48px;left:50%;transform:translateX(-50%);
@@ -260,7 +271,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05070a;
 
 <div id="hud">
   <div id="topbar">
-    <div class="stat">👥 <b id="sPop">0</b></div>
+    <!-- Contador mejorado: H: x / M: y -->
+    <div class="stat">👥 <b id="sPop">H:0 / M:0</b></div>
     <div class="stat">🏰 <b id="sFac">0</b></div>
     <div class="stat">📅 <b id="sYear">1</b></div>
     <div class="stat">⚔️ <b id="sWar">0</b></div>
@@ -443,21 +455,26 @@ let cfg={ratio:0.5,birthRate:1.0,longevity:1.0,brush:3};
 
 /* ARQUETIPOS */
 const KIND={
-  human:{hp:100,speed:1.9,size:1.0,color:'#f2d3a8',dmg:7},
-  deer:{hp:35,speed:2.5,size:0.9,color:'#a8703c',dmg:0,prey:true},
-  sheep:{hp:45,speed:1.4,size:0.9,color:'#e6e6e6',dmg:0,prey:true},
-  chicken:{hp:18,speed:1.7,size:0.65,color:'#f4f0e8',dmg:0,prey:true},
-  cow:{hp:65,speed:1.2,size:1.1,color:'#d8d0c0',dmg:0,prey:true},
-  pig:{hp:50,speed:1.5,size:0.95,color:'#e8a8a8',dmg:0,prey:true},
-  wolf:{hp:75,speed:2.9,size:1.0,color:'#69707e',dmg:15,hunter:true},
-  bird:{hp:14,speed:3.6,size:0.65,color:'#bfe3ff',dmg:0,flying:true},
-  dragon:{hp:1000,speed:3.0,size:2.4,color:'#cc3a1a',dmg:50,flying:true,monster:true,fire:true},
-  demon:{hp:420,speed:2.6,size:1.6,color:'#a02828',dmg:32,monster:true},
-  zombie:{hp:90,speed:0.95,size:1.0,color:'#6f9a4a',dmg:12,monster:true,infect:true},
-  alien:{hp:280,speed:3.3,size:1.4,color:'#4ce69a',dmg:26,flying:true,monster:true},
-  necro:{hp:320,speed:1.5,size:1.3,color:'#5b3a86',dmg:22,monster:true,summon:true},
-  kraken:{hp:800,speed:2.0,size:2.4,color:'#2e4f80',dmg:42,monster:true,swim:true},
-  giant:{hp:1600,speed:1.0,size:3.0,color:'#8a6a4a',dmg:65,monster:true},
+  human:{hp:100,speed:1.9,size:1.15,color:'#f2d3a8',dmg:7},
+  deer:{hp:35,speed:2.5,size:1.0,color:'#a8703c',dmg:0,prey:true},
+  sheep:{hp:45,speed:1.4,size:0.95,color:'#e6e6e6',dmg:0,prey:true},
+  chicken:{hp:18,speed:1.7,size:0.7,color:'#f4f0e8',dmg:0,prey:true},
+  cow:{hp:65,speed:1.2,size:1.2,color:'#d8d0c0',dmg:0,prey:true},
+  pig:{hp:50,speed:1.5,size:1.0,color:'#e8a8a8',dmg:0,prey:true},
+  wolf:{hp:80,speed:2.9,size:1.1,color:'#69707e',dmg:16,hunter:true,fierce:true},
+  bear:{hp:150,speed:2.0,size:1.45,color:'#6b4423',dmg:24,hunter:true,fierce:true},
+  tiger:{hp:115,speed:3.3,size:1.2,color:'#e08a20',dmg:21,hunter:true,fierce:true},
+  lion:{hp:135,speed:2.7,size:1.3,color:'#d4a017',dmg:25,hunter:true,fierce:true},
+  croc:{hp:125,speed:1.5,size:1.35,color:'#3a6b3a',dmg:19,hunter:true,fierce:true,swim:true},
+  shark:{hp:170,speed:2.5,size:1.5,color:'#5a7a9a',dmg:30,hunter:true,fierce:true,swim:true},
+  bird:{hp:14,speed:3.6,size:0.7,color:'#bfe3ff',dmg:0,flying:true},
+  dragon:{hp:1000,speed:3.0,size:2.5,color:'#cc3a1a',dmg:50,flying:true,monster:true,fire:true},
+  demon:{hp:420,speed:2.6,size:1.7,color:'#a02828',dmg:32,monster:true},
+  zombie:{hp:90,speed:0.95,size:1.05,color:'#6f9a4a',dmg:12,monster:true,infect:true},
+  alien:{hp:280,speed:3.3,size:1.45,color:'#4ce69a',dmg:26,flying:true,monster:true},
+  necro:{hp:320,speed:1.5,size:1.35,color:'#5b3a86',dmg:22,monster:true,summon:true},
+  kraken:{hp:800,speed:2.0,size:2.5,color:'#2e4f80',dmg:42,monster:true,swim:true},
+  giant:{hp:1600,speed:1.0,size:3.1,color:'#8a6a4a',dmg:65,monster:true},
 };
 
 const FCOL=['#e8503a','#3a8fe8','#e8c33a','#43c96b','#b45ae0','#e07a3a','#3ad6c9','#e04a9a'];
@@ -521,7 +538,7 @@ function spawn(kind,x,y,gender){
     maxAge:kind==='human'?rnd(55,85):rnd(20,60),
     gender:gender!==undefined?gender:(Math.random()<cfg.ratio?0:1),
     faction:-1,speed:K.speed*rnd(0.9,1.1),
-    flying:!!K.flying,monster:!!K.monster,prey:!!K.prey,hunter:!!K.hunter,
+    flying:!!K.flying,monster:!!K.monster,prey:!!K.prey,hunter:!!K.hunter,fierce:!!K.fierce,
     dmg:K.dmg,size:K.size,color:K.color,target:null,atkCd:0,breedCd:rnd(4,14),
     infected:0,dead:false,shield:0,immortal:false,speedBoost:1,summonCd:5,king:false};
   entities.push(u);return u;
@@ -700,17 +717,29 @@ function randomNear(u,radius){
   return {x:clamp(u.x+Math.cos(a)*r,1,MAP_W-2),y:clamp(u.y+Math.sin(a)*r,1,MAP_H-2)};
 }
 function findFoe(u){
-  let best=null,bd=1e9;const range=u.monster?18:12;
+  let best=null,bd=1e9;
+  const isFierce = KIND[u.kind] && KIND[u.kind].fierce;
+  const range = u.monster || isFierce ? 16 : 12;
   queryNear(u.x,u.y,range,o=>{
-    if(o===u||o.dead)return;let hostile=false;
-    if(u.monster){hostile=(o.kind==='human');}
-    else if(u.kind==='human'){
-      if(o.monster)hostile=true;
-      else if(o.kind==='human'&&u.faction>=0&&o.faction>=0&&u.faction!==o.faction){
-        const fa=factions[u.faction];if(fa&&fa.war[o.faction])hostile=true;
+    if(o===u||o.dead)return;
+    let hostile=false;
+    if(u.monster){
+      hostile = (o.kind==='human');
+    }else if(u.kind==='human'){
+      if(o.monster) hostile=true;
+      else if(KIND[o.kind] && KIND[o.kind].fierce) hostile=true; // humans hunt fierce animals
+      else if(o.kind==='human' && u.faction>=0 && o.faction>=0 && u.faction!==o.faction){
+        const fa=factions[u.faction];
+        if(fa && fa.war[o.faction]) hostile=true;
       }
-    }else if(u.hunter){hostile=o.prey===true;}
-    if(hostile){const d=dist2(u,o);if(d<bd){bd=d;best=o;}}
+    }else if(u.hunter){
+      if(o.prey===true) hostile=true;
+      if(isFierce && o.kind==='human') hostile=true; // fierce animals attack humans
+    }
+    if(hostile){
+      const d=dist2(u,o);
+      if(d<bd){bd=d;best=o;}
+    }
   });
   return best;
 }
@@ -984,6 +1013,283 @@ function lighten(hex,amt){
 }
 const NODE_COLOR={wood:'#8a5a2a',stone:'#8a8a8a',iron:'#b0b8c8',gold:'#ffd040',gems:'#60e0ff',food:'#c8e040'};
 
+/* ========== PIXEL ART DRAWING (clear recognizable silhouettes) ========== */
+function drawHumanSprite(ctx, sx, sy, size, baseCol, gender, isChild){
+  const s = size;
+  const skin = '#f0c8a0';
+  const hairM = '#2a1a0a';
+  const hairF = '#4a2a18';
+  // shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.beginPath(); ctx.ellipse(sx, sy+s*0.15, s*0.45, s*0.18, 0, 0, 6.28); ctx.fill();
+
+  if(gender === 0){ // MALE - rectangular body + pants
+    // legs
+    ctx.fillStyle = '#2a4a8a';
+    ctx.fillRect(sx - s*0.28, sy - s*0.15, s*0.22, s*0.45);
+    ctx.fillRect(sx + s*0.06, sy - s*0.15, s*0.22, s*0.45);
+    // body / shirt
+    ctx.fillStyle = baseCol;
+    ctx.fillRect(sx - s*0.32, sy - s*0.65, s*0.64, s*0.55);
+    // head
+    ctx.fillStyle = skin;
+    ctx.fillRect(sx - s*0.22, sy - s*0.95, s*0.44, s*0.35);
+    // hair
+    ctx.fillStyle = hairM;
+    ctx.fillRect(sx - s*0.24, sy - s*1.05, s*0.48, s*0.18);
+    // eyes
+    ctx.fillStyle = '#111';
+    ctx.fillRect(sx - s*0.12, sy - s*0.88, s*0.1, s*0.08);
+    ctx.fillRect(sx + s*0.02, sy - s*0.88, s*0.1, s*0.08);
+  } else { // FEMALE - dress silhouette
+    // dress
+    ctx.fillStyle = baseCol;
+    ctx.beginPath();
+    ctx.moveTo(sx - s*0.38, sy - s*0.55);
+    ctx.lineTo(sx + s*0.38, sy - s*0.55);
+    ctx.lineTo(sx + s*0.48, sy + s*0.25);
+    ctx.lineTo(sx - s*0.48, sy + s*0.25);
+    ctx.closePath(); ctx.fill();
+    // upper body
+    ctx.fillRect(sx - s*0.26, sy - s*0.72, s*0.52, s*0.25);
+    // head
+    ctx.fillStyle = skin;
+    ctx.fillRect(sx - s*0.2, sy - s*0.98, s*0.4, s*0.32);
+    // long hair
+    ctx.fillStyle = hairF;
+    ctx.fillRect(sx - s*0.24, sy - s*1.08, s*0.48, s*0.2);
+    ctx.fillRect(sx - s*0.28, sy - s*0.95, s*0.12, s*0.35);
+    ctx.fillRect(sx + s*0.16, sy - s*0.95, s*0.12, s*0.35);
+    // eyes
+    ctx.fillStyle = '#111';
+    ctx.fillRect(sx - s*0.1, sy - s*0.9, s*0.09, s*0.07);
+    ctx.fillRect(sx + s*0.02, sy - s*0.9, s*0.09, s*0.07);
+  }
+  if(isChild){
+    // smaller indicator
+    ctx.fillStyle = '#ff90b0';
+    ctx.fillRect(sx - s*0.08, sy - s*0.7, s*0.16, s*0.08);
+  }
+}
+
+function drawAnimalSprite(ctx, sx, sy, size, kind, col){
+  const s = size;
+  // shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.beginPath(); ctx.ellipse(sx, sy + s*0.2, s*0.5, s*0.2, 0, 0, 6.28); ctx.fill();
+
+  ctx.fillStyle = col;
+
+  if(kind === 'wolf' || kind === 'tiger' || kind === 'lion' || kind === 'bear'){
+    // body
+    ctx.fillRect(sx - s*0.55, sy - s*0.35, s*0.9, s*0.45);
+    // head
+    ctx.fillRect(sx + s*0.2, sy - s*0.5, s*0.45, s*0.4);
+    // ears
+    ctx.fillRect(sx + s*0.25, sy - s*0.7, s*0.15, s*0.2);
+    ctx.fillRect(sx + s*0.48, sy - s*0.7, s*0.15, s*0.2);
+    // legs
+    ctx.fillRect(sx - s*0.45, sy + s*0.05, s*0.16, s*0.3);
+    ctx.fillRect(sx - s*0.15, sy + s*0.05, s*0.16, s*0.3);
+    ctx.fillRect(sx + s*0.2, sy + s*0.05, s*0.16, s*0.28);
+    ctx.fillRect(sx + s*0.45, sy + s*0.05, s*0.16, s*0.28);
+    // tail
+    ctx.fillRect(sx - s*0.75, sy - s*0.2, s*0.25, s*0.12);
+    // eyes
+    ctx.fillStyle = '#111';
+    ctx.fillRect(sx + s*0.35, sy - s*0.4, s*0.1, s*0.1);
+    ctx.fillRect(sx + s*0.52, sy - s*0.4, s*0.1, s*0.1);
+    // specific details
+    if(kind === 'tiger'){
+      ctx.fillStyle = '#222';
+      for(let i=0;i<3;i++) ctx.fillRect(sx - s*0.4 + i*s*0.25, sy - s*0.25, s*0.08, s*0.3);
+    }
+    if(kind === 'lion'){
+      ctx.fillStyle = '#c08010';
+      ctx.fillRect(sx + s*0.1, sy - s*0.65, s*0.6, s*0.25); // mane
+    }
+    if(kind === 'bear'){
+      ctx.fillStyle = col;
+      ctx.fillRect(sx - s*0.6, sy - s*0.45, s*1.05, s*0.55); // bulkier
+    }
+  } else if(kind === 'croc' || kind === 'shark'){
+    // long body
+    ctx.fillRect(sx - s*0.7, sy - s*0.25, s*1.2, s*0.4);
+    // head / snout
+    ctx.fillRect(sx + s*0.4, sy - s*0.3, s*0.45, s*0.35);
+    // teeth
+    ctx.fillStyle = '#eee';
+    for(let i=0;i<4;i++) ctx.fillRect(sx + s*0.5 + i*s*0.1, sy - s*0.05, s*0.07, s*0.1);
+    // legs / fins
+    ctx.fillStyle = col;
+    ctx.fillRect(sx - s*0.4, sy + s*0.1, s*0.2, s*0.2);
+    ctx.fillRect(sx + s*0.15, sy + s*0.1, s*0.2, s*0.2);
+    if(kind === 'shark'){
+      // dorsal fin
+      ctx.beginPath();
+      ctx.moveTo(sx - s*0.1, sy - s*0.25);
+      ctx.lineTo(sx + s*0.05, sy - s*0.55);
+      ctx.lineTo(sx + s*0.2, sy - s*0.25);
+      ctx.closePath(); ctx.fill();
+    }
+  } else if(kind === 'deer'){
+    ctx.fillRect(sx - s*0.4, sy - s*0.3, s*0.7, s*0.4);
+    ctx.fillRect(sx + s*0.2, sy - s*0.5, s*0.35, s*0.3);
+    // antlers
+    ctx.fillStyle = '#8a6a3a';
+    ctx.fillRect(sx + s*0.25, sy - s*0.75, s*0.08, s*0.3);
+    ctx.fillRect(sx + s*0.4, sy - s*0.75, s*0.08, s*0.3);
+    ctx.fillRect(sx + s*0.2, sy - s*0.75, s*0.35, s*0.08);
+    // legs
+    ctx.fillStyle = col;
+    ctx.fillRect(sx - s*0.3, sy + s*0.05, s*0.12, s*0.35);
+    ctx.fillRect(sx + s*0.15, sy + s*0.05, s*0.12, s*0.35);
+  } else if(kind === 'sheep' || kind === 'cow' || kind === 'pig'){
+    ctx.fillRect(sx - s*0.5, sy - s*0.3, s*0.85, s*0.45);
+    ctx.fillRect(sx + s*0.25, sy - s*0.45, s*0.35, s*0.3);
+    ctx.fillStyle = '#222';
+    ctx.fillRect(sx + s*0.4, sy - s*0.35, s*0.1, s*0.1);
+    ctx.fillStyle = col;
+    ctx.fillRect(sx - s*0.35, sy + s*0.1, s*0.14, s*0.3);
+    ctx.fillRect(sx + s*0.2, sy + s*0.1, s*0.14, s*0.3);
+    if(kind === 'sheep'){
+      ctx.fillStyle = '#f5f5f5';
+      ctx.fillRect(sx - s*0.55, sy - s*0.4, s*0.9, s*0.25); // wool
+    }
+  } else if(kind === 'chicken'){
+    ctx.fillRect(sx - s*0.25, sy - s*0.3, s*0.5, s*0.4);
+    ctx.fillStyle = '#e04030'; // comb
+    ctx.fillRect(sx - s*0.08, sy - s*0.5, s*0.25, s*0.18);
+    ctx.fillStyle = '#f4f0e8';
+    ctx.fillRect(sx + s*0.15, sy - s*0.25, s*0.25, s*0.2);
+    ctx.fillStyle = '#f08020'; // beak
+    ctx.fillRect(sx + s*0.35, sy - s*0.2, s*0.18, s*0.1);
+  } else if(kind === 'bird'){
+    ctx.fillRect(sx - s*0.25, sy - s*0.2, s*0.5, s*0.3);
+    ctx.fillRect(sx - s*0.4, sy - s*0.35, s*0.3, s*0.2); // wing
+    ctx.fillStyle = '#f08020';
+    ctx.fillRect(sx + s*0.2, sy - s*0.15, s*0.2, s*0.1);
+  } else {
+    // generic / monster
+    ctx.fillRect(sx - s*0.4, sy - s*0.5, s*0.8, s*0.7);
+    ctx.fillStyle = '#ff3020';
+    ctx.fillRect(sx - s*0.25, sy - s*0.4, s*0.15, s*0.15);
+    ctx.fillRect(sx + s*0.1, sy - s*0.4, s*0.15, s*0.15);
+  }
+}
+
+function drawBuildingSprite(ctx, sx, sy, size, type, level, col, isCapital){
+  const s = size;
+  // shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(sx - s*0.55, sy + s*0.05, s*1.1, s*0.2);
+
+  if(level <= 0 || type === 'choza'){
+    // simple hut
+    ctx.fillStyle = '#5a3a1a';
+    ctx.fillRect(sx - s*0.4, sy - s*0.35, s*0.8, s*0.45);
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.moveTo(sx - s*0.5, sy - s*0.35);
+    ctx.lineTo(sx, sy - s*0.75);
+    ctx.lineTo(sx + s*0.5, sy - s*0.35);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#2a1a0a';
+    ctx.fillRect(sx - s*0.12, sy - s*0.2, s*0.24, s*0.3);
+  } else if(level === 1 || type === 'casa'){
+    ctx.fillStyle = '#6a4a2a';
+    ctx.fillRect(sx - s*0.45, sy - s*0.5, s*0.9, s*0.6);
+    ctx.fillStyle = col;
+    ctx.fillRect(sx - s*0.5, sy - s*0.7, s*1.0, s*0.25);
+    ctx.fillStyle = '#2a1a0a';
+    ctx.fillRect(sx - s*0.15, sy - s*0.25, s*0.3, s*0.35);
+    ctx.fillStyle = '#6ab0e0';
+    ctx.fillRect(sx + s*0.2, sy - s*0.4, s*0.2, s*0.18);
+  } else if(level === 2 || type === 'torre' || type === 'fortaleza'){
+    ctx.fillStyle = '#4a3a2a';
+    ctx.fillRect(sx - s*0.35, sy - s*0.9, s*0.7, s*1.0);
+    ctx.fillStyle = col;
+    ctx.fillRect(sx - s*0.4, sy - s*1.05, s*0.8, s*0.2);
+    // battlements
+    for(let i=0;i<3;i++) ctx.fillRect(sx - s*0.38 + i*s*0.28, sy - s*1.2, s*0.18, s*0.18);
+    ctx.fillStyle = '#2a1a0a';
+    ctx.fillRect(sx - s*0.12, sy - s*0.35, s*0.24, s*0.4);
+  } else { // castillo
+    ctx.fillStyle = '#3a2a1a';
+    ctx.fillRect(sx - s*0.55, sy - s*1.0, s*1.1, s*1.15);
+    // side towers
+    ctx.fillRect(sx - s*0.8, sy - s*0.75, s*0.3, s*0.9);
+    ctx.fillRect(sx + s*0.5, sy - s*0.75, s*0.3, s*0.9);
+    ctx.fillStyle = col;
+    ctx.fillRect(sx - s*0.6, sy - s*1.15, s*1.2, s*0.2);
+    for(let i=0;i<4;i++) ctx.fillRect(sx - s*0.55 + i*s*0.3, sy - s*1.3, s*0.18, s*0.18);
+    ctx.fillRect(sx - s*0.85, sy - s*0.9, s*0.35, s*0.15);
+    ctx.fillRect(sx + s*0.5, sy - s*0.9, s*0.35, s*0.15);
+    ctx.fillStyle = '#2a1a0a';
+    ctx.fillRect(sx - s*0.15, sy - s*0.4, s*0.3, s*0.5);
+  }
+
+  // Flag
+  if(isCapital || level >= 2){
+    const fx = sx + (level >= 2 ? s*0.45 : s*0.3);
+    const fy = sy - (level >= 2 ? s*1.4 : s*0.9);
+    ctx.fillStyle = '#333';
+    ctx.fillRect(fx, fy, s*0.06, s*0.55);
+    ctx.fillStyle = col;
+    ctx.fillRect(fx + s*0.06, fy, s*0.4, s*0.25);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(fx + s*0.18, fy + s*0.07, s*0.15, s*0.12);
+  }
+}
+
+function drawNodeSprite(ctx, sx, sy, size, type){
+  const s = size;
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.beginPath(); ctx.ellipse(sx, sy + s*0.15, s*0.4, s*0.15, 0, 0, 6.28); ctx.fill();
+
+  if(type === 'wood'){
+    // log
+    ctx.fillStyle = '#8a5a2a';
+    ctx.fillRect(sx - s*0.4, sy - s*0.2, s*0.8, s*0.35);
+    ctx.fillStyle = '#6a3a1a';
+    ctx.fillRect(sx - s*0.4, sy - s*0.2, s*0.15, s*0.35);
+    ctx.fillRect(sx + s*0.25, sy - s*0.2, s*0.15, s*0.35);
+  } else if(type === 'stone'){
+    ctx.fillStyle = '#8a8a8a';
+    ctx.beginPath();
+    ctx.moveTo(sx - s*0.35, sy + s*0.15);
+    ctx.lineTo(sx - s*0.2, sy - s*0.25);
+    ctx.lineTo(sx + s*0.25, sy - s*0.3);
+    ctx.lineTo(sx + s*0.4, sy + s*0.1);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#6a6a6a';
+    ctx.fillRect(sx - s*0.1, sy - s*0.1, s*0.2, s*0.2);
+  } else if(type === 'gold'){
+    ctx.fillStyle = '#ffd040';
+    ctx.beginPath(); ctx.arc(sx, sy - s*0.05, s*0.35, 0, 6.28); ctx.fill();
+    ctx.fillStyle = '#ffaa00';
+    ctx.beginPath(); ctx.arc(sx - s*0.1, sy - s*0.12, s*0.12, 0, 6.28); ctx.fill();
+  } else if(type === 'iron'){
+    ctx.fillStyle = '#b0b8c8';
+    ctx.fillRect(sx - s*0.3, sy - s*0.25, s*0.6, s*0.4);
+    ctx.fillStyle = '#8090a0';
+    ctx.fillRect(sx - s*0.15, sy - s*0.15, s*0.3, s*0.2);
+  } else if(type === 'gems'){
+    ctx.fillStyle = '#60e0ff';
+    ctx.beginPath();
+    ctx.moveTo(sx, sy - s*0.4);
+    ctx.lineTo(sx + s*0.3, sy);
+    ctx.lineTo(sx, sy + s*0.25);
+    ctx.lineTo(sx - s*0.3, sy);
+    ctx.closePath(); ctx.fill();
+  } else { // food
+    ctx.fillStyle = '#c8e040';
+    ctx.beginPath(); ctx.arc(sx, sy - s*0.05, s*0.3, 0, 6.28); ctx.fill();
+    ctx.fillStyle = '#8a5a2a';
+    ctx.fillRect(sx - s*0.05, sy - s*0.35, s*0.1, s*0.15);
+  }
+}
+
 function render(){
   const ts=cam.ts;
   ctx.save();
@@ -1007,12 +1313,22 @@ function render(){
     }
   }
   ctx.globalAlpha=1;
-  ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=1;
+  // Colored faction borders
+  const bw = Math.max(1.5, Math.min(3.5, ts * 0.4));
   for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
     const i=y*MAP_W+x;
     if(ownership[i]>0){
-      if(x+1<MAP_W&&ownership[i+1]!==ownership[i])ctx.strokeRect(ox+x*ts+ts-1,oy+y*ts,1,ts);
-      if(y+1<MAP_H&&ownership[i+MAP_W]!==ownership[i])ctx.strokeRect(ox+x*ts,oy+y*ts+ts-1,ts,1);
+      const fid = ownership[i]-1;
+      const f = factions[fid];
+      const bcol = (f && !f.extinct) ? f.color : '#888';
+      if(x+1 < MAP_W && ownership[i+1] !== ownership[i]){
+        ctx.strokeStyle = bcol; ctx.lineWidth = bw;
+        ctx.beginPath(); ctx.moveTo(ox+(x+1)*ts, oy+y*ts); ctx.lineTo(ox+(x+1)*ts, oy+(y+1)*ts); ctx.stroke();
+      }
+      if(y+1 < MAP_H && ownership[i+MAP_W] !== ownership[i]){
+        ctx.strokeStyle = bcol; ctx.lineWidth = bw;
+        ctx.beginPath(); ctx.moveTo(ox+x*ts, oy+(y+1)*ts); ctx.lineTo(ox+(x+1)*ts, oy+(y+1)*ts); ctx.stroke();
+      }
     }
   }
   if(ts>1.5){
@@ -1031,63 +1347,97 @@ function render(){
     ctx.fillStyle=z.type==='radiation'?'#a0ff40':'#c060ff';
     ctx.beginPath();ctx.arc(sx+r/2,sy+r/2,r/2,0,6.283);ctx.fill();ctx.globalAlpha=1;
   }
+  // Resource nodes with clear shapes
   for(const n of nodes){
     const [sx,sy]=w2s(n.x,n.y);
-    if(sx<-10||sy<-10||sx>W+10||sy>H+10)continue;
-    const s=Math.max(2,ts*0.55);
-    ctx.fillStyle=NODE_COLOR[n.type]||'#fff';
-    ctx.fillRect(sx-s/2,sy-s/2,s,s);
+    if(sx<-20||sy<-20||sx>W+20||sy>H+20)continue;
+    const s=Math.max(6, ts*0.9);
+    drawNodeSprite(ctx, sx, sy, s, n.type);
   }
+
+  // Buildings + capital flags + names
   for(const f of factions){
     if(f.extinct)continue;
     for(const h of f.houses){
       const [sx,sy]=w2s(h.x,h.y);
-      if(sx<-20||sy<-20||sx>W+20||sy>H+20)continue;
-      const s=Math.max(3,ts*1.6);
-      ctx.fillStyle='#000';ctx.fillRect(sx-s/2-1,sy-s-1,s+2,s+2);
-      ctx.fillStyle=f.color;ctx.fillRect(sx-s/2,sy-s,s,s);
-      ctx.fillStyle='#2a1a10';ctx.fillRect(sx-s/4,sy-s*0.6,s*0.5,s*0.6);
+      if(sx<-50||sy<-50||sx>W+50||sy>H+50)continue;
+      const baseS = Math.max(10, ts * (h.isCapital ? 3.4 : 2.1));
+      drawBuildingSprite(ctx, sx, sy, baseS, h.type||'choza', h.level||0, f.color, !!h.isCapital);
     }
+    // Name label on capital when zoomed
     const [fx,fy]=w2s(f.x,f.y);
-    if(fx>-20&&fy>-20&&fx<W+20&&fy<H+20){
-      const s=Math.max(5,ts*2);
-      ctx.fillStyle='#000';ctx.fillRect(fx-s/2-1,fy-s*2-1,s+2,s*1.6+2);
-      ctx.fillStyle=f.color;ctx.fillRect(fx-s/2,fy-s*2,s,s*1.6);
-      if(selectedFaction===f.id){
-        ctx.strokeStyle='#ffe060';ctx.lineWidth=2;
-        ctx.strokeRect(fx-s/2-4,fy-s*2-4,s+8,s*1.6+8);
-      }
+    if(fx>-40 && fy>-40 && fx<W+40 && fy<H+40 && ts > 3.2){
+      const fontSize = Math.max(10, Math.min(16, ts*1.3));
+      ctx.font = `bold ${fontSize}px ui-monospace,monospace`;
+      ctx.textAlign = 'center';
+      const tw = f.name.length * fontSize * 0.6;
+      ctx.fillStyle = 'rgba(0,0,0,0.75)';
+      ctx.fillRect(fx - tw/2 - 4, fy - ts*5.2 - 4, tw + 8, fontSize + 6);
+      ctx.fillStyle = f.color;
+      ctx.fillText(f.name, fx, fy - ts*5.2 + fontSize - 2);
+    }
+    if(selectedFaction === f.id){
+      ctx.strokeStyle = '#ffe060';
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(fx - ts*2.8, fy - ts*4.5, ts*5.6, ts*5);
     }
   }
+
+  // Entities with clear silhouettes
   for(let i=0;i<entities.length;i++){
-    const u=entities[i];if(u.dead)continue;
-    const [sx,sy0]=w2s(u.x,u.y);
-    if(sx<-30||sy0<-30||sx>W+30||sy0>H+30)continue;
-    let sy=sy0;const K=KIND[u.kind];let s=Math.max(2,ts*K.size*0.85);
+    const u = entities[i]; if(u.dead) continue;
+    const [sx,sy0] = w2s(u.x, u.y);
+    if(sx<-50||sy0<-50||sx>W+50||sy0>H+50) continue;
+    let sy = sy0;
+    const K = KIND[u.kind] || {size:1, color:'#fff'};
+    let s = Math.max(8, ts * K.size * 1.15);
+
     if(u.flying){
-      sy-=ts*2.2;ctx.globalAlpha=0.25;ctx.fillStyle='#000';
-      ctx.beginPath();ctx.ellipse(sx,sy0,s*0.7,s*0.35,0,0,6.283);ctx.fill();ctx.globalAlpha=1;
+      sy -= ts * 2.5;
+      ctx.globalAlpha = 0.3;
+      ctx.fillStyle = '#000';
+      ctx.beginPath(); ctx.ellipse(sx, sy0, s*0.7, s*0.28, 0, 0, 6.28); ctx.fill();
+      ctx.globalAlpha = 1;
     }
-    let col=u.color;
-    if(u.kind==='human'){
-      if(u.faction>=0&&factions[u.faction])col=factions[u.faction].color;
-      if(u.gender===1)col=lighten(col,0.25);
-      if(u.infected>0)col='#7fbf4f';
+
+    let col = u.color || K.color;
+    if(u.kind === 'human'){
+      if(u.faction >= 0 && factions[u.faction]) col = factions[u.faction].color;
+      if(u.gender === 1) col = lighten(col, 0.28);
+      if(u.infected > 0) col = '#7fbf4f';
     }
-    ctx.fillStyle='#000a';ctx.fillRect(sx-s/2-1,sy-s-1,s+2,s+2);
-    ctx.fillStyle=col;ctx.fillRect(sx-s/2,sy-s,s,s);
-    if(s>=6){
-      if(u.kind==='human'){
-        ctx.fillStyle=u.gender===0?'#3a6ad0':'#e05a9a';
-        ctx.fillRect(sx-s*0.15,sy-s-s*0.35,s*0.3,s*0.3);
-        if(WATER(tileAt(u.x,u.y))){ctx.fillStyle='#6a4a2a';ctx.fillRect(sx-s*0.8,sy-s*0.15,s*1.6,s*0.35);}
-      }
-      if(u.monster){
-        ctx.fillStyle='#ff3020';
-        ctx.fillRect(sx-s*0.35,sy-s*0.75,s*0.2,s*0.2);
-        ctx.fillRect(sx+s*0.15,sy-s*0.75,s*0.2,s*0.2);
-      }
-      if(u.shield>0){ctx.strokeStyle='#6fd0ff';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(sx,sy-s*0.5,s*0.9,0,6.283);ctx.stroke();}
+
+    if(u.kind === 'human'){
+      drawHumanSprite(ctx, sx, sy, s, col, u.gender, u.age < 16);
+    } else if(K.monster){
+      // monsters: larger distinctive shape
+      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      ctx.beginPath(); ctx.ellipse(sx, sy0+2, s*0.5, s*0.2, 0, 0, 6.28); ctx.fill();
+      ctx.fillStyle = col;
+      ctx.fillRect(sx - s*0.4, sy - s*0.7, s*0.8, s*0.75);
+      ctx.fillStyle = '#ff2020';
+      ctx.fillRect(sx - s*0.28, sy - s*0.55, s*0.18, s*0.18);
+      ctx.fillRect(sx + s*0.1, sy - s*0.55, s*0.18, s*0.18);
+      // horns for some
+      ctx.fillStyle = '#222';
+      ctx.fillRect(sx - s*0.35, sy - s*0.9, s*0.12, s*0.25);
+      ctx.fillRect(sx + s*0.23, sy - s*0.9, s*0.12, s*0.25);
+    } else {
+      drawAnimalSprite(ctx, sx, sy, s, u.kind, col);
+    }
+
+    if(u.shield > 0){
+      ctx.strokeStyle = '#6fd0ff';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(sx, sy - s*0.3, s*0.7, 0, 6.28); ctx.stroke();
+    }
+    // HP bar when damaged and zoomed
+    if(ts > 3.5 && u.hp < u.maxHp){
+      const bw = s * 1.0, bh = 3;
+      ctx.fillStyle = '#400';
+      ctx.fillRect(sx - bw/2, sy - s - 8, bw, bh);
+      ctx.fillStyle = u.hp < u.maxHp*0.3 ? '#e03030' : '#40c040';
+      ctx.fillRect(sx - bw/2, sy - s - 8, bw * (u.hp / u.maxHp), bh);
     }
   }
   for(const e of effects){
@@ -1241,6 +1591,11 @@ addTool('life','chicken','🐔','Gallina',(x,y)=>{for(let i=0;i<4;i++)spawn('chi
 addTool('life','cow','🐄','Vaca',(x,y)=>{for(let i=0;i<2;i++)spawn('cow',x+rnd(-2,2),y+rnd(-2,2));});
 addTool('life','pig','🐷','Cerdo',(x,y)=>{for(let i=0;i<3;i++)spawn('pig',x+rnd(-2,2),y+rnd(-2,2));});
 addTool('life','wolf','🐺','Lobo',(x,y)=>{for(let i=0;i<3;i++)spawn('wolf',x+rnd(-2,2),y+rnd(-2,2));});
+addTool('life','bear','🐻','Oso',(x,y)=>{for(let i=0;i<2;i++)spawn('bear',x+rnd(-2,2),y+rnd(-2,2));});
+addTool('life','tiger','🐯','Tigre',(x,y)=>{for(let i=0;i<2;i++)spawn('tiger',x+rnd(-2,2),y+rnd(-2,2));});
+addTool('life','lion','🦁','León',(x,y)=>{for(let i=0;i<2;i++)spawn('lion',x+rnd(-2,2),y+rnd(-2,2));});
+addTool('life','croc','🐊','Cocodrilo',(x,y)=>{for(let i=0;i<2;i++)spawn('croc',x+rnd(-2,2),y+rnd(-2,2));});
+addTool('life','shark','🦈','Tiburón',(x,y)=>{for(let i=0;i<2;i++)spawn('shark',x+rnd(-2,2),y+rnd(-2,2));});
 addTool('life','bird','🐦','Ave',(x,y)=>{for(let i=0;i<5;i++)spawn('bird',x+rnd(-3,3),y+rnd(-3,3));});
 
 /* RECURSOS */
@@ -1435,7 +1790,6 @@ function buildTabs(){
     b.textContent=c.name;
     b.onclick=()=>{
       currentCat=c.id;buildTabs();buildTools();
-      // Auto-scroll al tab activo
       setTimeout(()=>{
         const active=tabsEl.querySelector('.tab.active');
         if(active)active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
@@ -1443,7 +1797,6 @@ function buildTabs(){
     };
     tabsEl.appendChild(b);
   }
-  // Auto-scroll inicial al tab activo
   setTimeout(()=>{
     const active=tabsEl.querySelector('.tab.active');
     if(active)active.scrollIntoView({block:'nearest',inline:'center'});
@@ -1452,7 +1805,10 @@ function buildTabs(){
 
 function buildTools(){
   toolsEl.innerHTML='';
+  
+  // CORRECCIÓN: Modos de visualización según el tipo de contenido
   if(currentCat==='disc'){
+    toolsEl.className = 'mode-block'; // Quitar grid, usar block
     const grid=document.createElement('div');grid.className='discGrid';
     for(const key in ALL_DISCOVERIES){
       const d=ALL_DISCOVERIES[key];
@@ -1467,6 +1823,7 @@ function buildTools(){
     toolsEl.appendChild(grid);return;
   }
   if(currentCat==='log'){
+    toolsEl.className = 'mode-block'; // Quitar grid, usar block
     const logDiv=document.createElement('div');logDiv.id='logArea';
     if(realmHistory.length===0){
       logDiv.innerHTML='<div style="color:#6a7a9a;text-align:center;padding:20px">Sin eventos aún...</div>';
@@ -1480,6 +1837,9 @@ function buildTools(){
     }
     toolsEl.appendChild(logDiv);return;
   }
+  
+  // Restaurar grid para iconos
+  toolsEl.className = ''; 
   const list=TOOLS.filter(t=>t.cat===currentCat);
   for(const t of list){
     const b=document.createElement('div');
@@ -1656,47 +2016,98 @@ function findLandNear(cx,cy,rad){
   return {x:MAP_W/2,y:MAP_H/2};
 }
 
+function placeOnLand(cx,cy,maxR){
+  for(let r=0;r<=maxR;r++){
+    for(let t=0;t<24;t++){
+      const a=(t/24)*6.283 + Math.random()*0.3;
+      const x=clamp(cx + Math.cos(a)*r + rnd(-0.4,0.4), 1, MAP_W-2);
+      const y=clamp(cy + Math.sin(a)*r + rnd(-0.4,0.4), 1, MAP_H-2);
+      const tx=x|0, ty=y|0;
+      const tile=terrain[ty*MAP_W+tx];
+      if(!WATER(tile) && tile!==T.LAVA) return {x,y};
+    }
+  }
+  // last resort: any land on map
+  for(let i=0;i<500;i++){
+    const x=rnd(2,MAP_W-2), y=rnd(2,MAP_H-2);
+    const tile=terrain[(y|0)*MAP_W+(x|0)];
+    if(!WATER(tile) && tile!==T.LAVA) return {x,y};
+  }
+  return {x:MAP_W/2, y:MAP_H/2};
+}
+
 function spawnInitialLife(men,women,realms){
   ownership.fill(0);
+  entities = entities.filter(u => u.kind !== 'human'); // clean previous humans if any
   const realmSpots=[];
   for(let k=0;k<realms;k++){
     const ang=(k/realms)*6.283+0.3;
-    const cx=MAP_W/2+Math.cos(ang)*MAP_W*0.18;
-    const cy=MAP_H/2+Math.sin(ang)*MAP_H*0.18;
-    realmSpots.push(findLandNear(cx,cy,35));
+    const cx=MAP_W/2+Math.cos(ang)*MAP_W*0.22;
+    const cy=MAP_H/2+Math.sin(ang)*MAP_H*0.22;
+    realmSpots.push(findLandNear(cx,cy,40));
   }
-  const totalPeople=men+women;
-  let peopleSpawned=0;
-  const perRealm=Math.floor(totalPeople/realms);
-  for(let r=0;r<realmSpots.length;r++){
-    const s=realmSpots[r];
-    const f=newFaction(s.x,s.y);
-    const isLast=(r===realmSpots.length-1);
-    const count=isLast?totalPeople-peopleSpawned:perRealm;
-    let m=0,w=0;
-    for(let i=0;i<count;i++){
-      const targetM=Math.round(count*(men/(totalPeople||1)));
-      const gender=(i<targetM)?0:1;
-      if(gender===0)m++;else w++;
-      const x=s.x+rnd(-4,4),y=s.y+rnd(-4,4);
-      if(!WATER(terrain[(y|0)*MAP_W+(x|0)])){
-        const u=spawn('human',x,y,gender);
-        if(u){u.faction=f.id;f.pop++;}
+
+  // Exact distribution
+  let menLeft = men|0;
+  let womenLeft = women|0;
+  const baseMen = Math.floor(menLeft / realms);
+  const baseWomen = Math.floor(womenLeft / realms);
+
+  for(let r=0; r<realmSpots.length; r++){
+    const s = realmSpots[r];
+    const f = newFaction(s.x, s.y);
+    const isLast = (r === realmSpots.length-1);
+
+    const targetMen = isLast ? menLeft : baseMen;
+    const targetWomen = isLast ? womenLeft : baseWomen;
+
+    let actualM = 0, actualW = 0;
+
+    // Spawn exact number of men
+    for(let i=0; i<targetMen; i++){
+      const pos = placeOnLand(s.x, s.y, 8);
+      const u = spawn('human', pos.x, pos.y, 0);
+      if(u){
+        u.faction = f.id;
+        f.pop++;
+        actualM++;
       }
     }
-    peopleSpawned+=count;
-    f.pop=m+w;
-    for(let k=0;k<3;k++)expandTerritory(f);
-    for(let h=0;h<Math.min(4,Math.floor(f.pop/3));h++){
-      const hx=s.x+rnd(-3,3),hy=s.y+rnd(-3,3);
-      if(!WATER(terrain[(hy|0)*MAP_W+(hx|0)]))f.houses.push({x:hx,y:hy,type:'choza'});
+    // Spawn exact number of women
+    for(let i=0; i<targetWomen; i++){
+      const pos = placeOnLand(s.x, s.y, 8);
+      const u = spawn('human', pos.x, pos.y, 1);
+      if(u){
+        u.faction = f.id;
+        f.pop++;
+        actualW++;
+      }
     }
-    logEvent('good',f.name,`👥 ${m} hombres, ${w} mujeres`);
+
+    menLeft -= targetMen;
+    womenLeft -= targetWomen;
+    f.pop = actualM + actualW;
+
+    // Initial territory + buildings
+    for(let k=0;k<5;k++) expandTerritory(f);
+
+    // Capital
+    f.houses.push({x:s.x, y:s.y, type:'fort', level:1, isCapital:true});
+    // Huts around capital
+    const hutCount = Math.max(1, Math.min(5, Math.floor(f.pop / 4)));
+    for(let h=0; h<hutCount; h++){
+      const pos = placeOnLand(s.x, s.y, 4);
+      f.houses.push({x:pos.x, y:pos.y, type:'choza', level:0});
+    }
+
+    logEvent('good', f.name, `👥 ${actualM} hombres, ${actualW} mujeres (pedido: ${targetMen}/${targetWomen})`);
   }
-  for(let i=0;i<60;i++){
-    const x=rnd(2,MAP_W-2),y=rnd(2,MAP_H-2);
-    if(WATER(terrain[(y|0)*MAP_W+(x|0)]))continue;
-    spawn(pick(['deer','sheep','chicken','cow','pig','bird','deer','wolf']),x,y);
+
+  // Wildlife including fierce animals
+  const faunaList = ['deer','sheep','chicken','cow','pig','bird','wolf','bear','tiger','lion','croc'];
+  for(let i=0;i<70;i++){
+    const pos = placeOnLand(rnd(10,MAP_W-10), rnd(10,MAP_H-10), 20);
+    spawn(pick(faunaList), pos.x, pos.y);
   }
 }
 
@@ -1752,16 +2163,15 @@ function serializeEntity(u){
 }
 function deserializeEntity(d){
   const u={...d,dead:false,target:null,atkCd:0};
-  // Restaurar flags derivadas
   const K=KIND[d.kind];
-  if(K){u.flying=!!K.flying;u.monster=!!K.monster;u.prey=!!K.prey;u.hunter=!!K.hunter;}
+  if(K){u.flying=!!K.flying;u.monster=!!K.monster;u.prey=!!K.prey;u.hunter=!!K.hunter;u.fierce=!!K.fierce;}
   return u;
 }
 
 function serializeFaction(f){
   return {
     id:f.id,name:f.name,color:f.color,x:f.x,y:f.y,
-    houses:f.houses.map(h=>({x:h.x,y:h.y,type:h.type})),
+    houses:f.houses.map(h=>({x:h.x,y:h.y,type:h.type,level:h.level||0,isCapital:!!h.isCapital})),
     pop:f.pop,food:f.food,wood:f.wood,stone:f.stone,iron:f.iron,gold:f.gold,gems:f.gems,
     discovered:f.discovered,discoveryProgress:f.discoveryProgress,
     religion:f.religion,war:f.war,age:f.age,tech:f.tech,extinct:f.extinct,
@@ -1815,7 +2225,6 @@ function loadGame(){
 
 function restoreGame(data){
   try{
-    // Terreno
     for(let i=0;i<terrain.length;i++){
       terrain[i]=data.terrain[i]||0;
       shade[i]=data.shade[i]||0;
@@ -1832,26 +2241,19 @@ function restoreGame(data){
     nextId=data.nextId||1;
     selectedFaction=data.selectedFaction!==undefined?data.selectedFaction:-1;
 
-    factions=(data.factions||[]).map(serializeFaction=>serializeFaction);
     factions=JSON.parse(JSON.stringify(data.factions||[]));
-
     entities=(data.entities||[]).map(deserializeEntity);
     nodes=JSON.parse(JSON.stringify(data.nodes||[]));
     realmHistory=data.realmHistory||[];
 
-    // Sincronizar UI
     rRatio.value=Math.round(cfg.ratio*100);vRatio.textContent=rRatio.value+'%';
     rBirth.value=Math.round(cfg.birthRate*10);vBirth.textContent=cfg.birthRate.toFixed(1)+'x';
     rSpeed.value=speedMult;vSpeed.textContent=speedMult+'x';
     btnSpeed.textContent='▶ '+speedMult+'x';
     rLife.value=Math.round(cfg.longevity*10);vLife.textContent=cfg.longevity.toFixed(1)+'x';
 
-    // Tiempo offline
     const now=Date.now();
     const elapsed=(now-(data.savedAt||now))/1000;
-    if(elapsed>0){
-      console.log('Tiempo offline:',elapsed.toFixed(0),'s');
-    }
     return elapsed;
   }catch(e){
     console.warn('Error restaurando:',e);
@@ -1859,42 +2261,35 @@ function restoreGame(data){
   }
 }
 
-/* Simulación offline: avanza el mundo por el tiempo que estuvo cerrado */
 function simulateOffline(seconds){
   if(seconds<=0)return;
-  // Limitar a máximo 1 hora de simulación
   const maxSec=Math.min(seconds,3600);
-  const simDt=0.5; // paso de simulación
+  const simDt=0.5;
   let remaining=maxSec;
   let iters=0;
-  const maxIters=2000; // límite de iteraciones
+  const maxIters=2000;
   while(remaining>0&&iters<maxIters){
     const step=Math.min(simDt,remaining);
-    // Simulación rápida (sin render)
     aiAcc+=step;
     let a=0;
     while(aiAcc>=AI_DT&&a<4){aiTick(AI_DT);aiAcc-=AI_DT;a++;}
     if(aiAcc>AI_DT*4)aiAcc=0;
     moveUnits(step);
     fireTick(step);
-    // Saltar efectos y partículas (no importan offline)
-    // Avanzar tiempo del mundo
     worldTime+=step;
     remaining-=step;
     iters++;
-    // Cada cierto tiempo, log de resumen
     if(iters%100===0){
       const pop=entities.filter(u=>u.kind==='human').length;
       logEvent('good','Sistema',`⏳ Simulación offline: ${Math.round(maxSec-iters*step)}s restantes (${pop} humanos)`);
     }
   }
-  // Resumen final
-  const pop=entities.filter(u=>u.kind==='human').length;
+  const popM=entities.filter(u=>u.kind==='human'&&u.gender===0).length;
+  const popF=entities.filter(u=>u.kind==='human'&&u.gender===1).length;
   const aliveFactions=factions.filter(f=>!f.extinct).length;
-  logEvent('good','Sistema',`⏳ Tiempo offline: ${Math.round(maxSec)}s — ${pop} humanos, ${aliveFactions} reinos vivos`);
+  logEvent('good','Sistema',`⏳ Offline: ${Math.round(maxSec)}s — H:${popM} / M:${popF}, ${aliveFactions} reinos`);
 }
 
-/* Autoguardado cada 5 segundos si hay cambios */
 let autoSaveTimer=0;
 function autoSaveTick(dt){
   autoSaveTimer+=dt;
@@ -1904,12 +2299,9 @@ function autoSaveTick(dt){
   }
 }
 
-/* Guardar al cerrar/ocultar */
 window.addEventListener('beforeunload',()=>{if(dirtySave)saveGame();});
 document.addEventListener('visibilitychange',()=>{
-  if(document.hidden){
-    if(dirtySave)saveGame();
-  }
+  if(document.hidden){if(dirtySave)saveGame();}
 });
 
 /* BUCLE */
@@ -1951,10 +2343,15 @@ function step(dt){
 }
 
 function updateStats(){
-  let pop=0,wars=0;
-  for(const u of entities)if(u.kind==='human')pop++;
+  let popM=0,popF=0,wars=0;
+  for(const u of entities){
+    if(u.kind==='human'){
+      if(u.gender===0)popM++;else popF++;
+    }
+  }
   for(const f of factions)for(const k in f.war)if(f.war[k])wars++;
-  sPop.textContent=pop;
+  // Mostrar Hombres / Mujeres
+  sPop.innerHTML=`H:${popM} / M:${popF}`;
   sFac.textContent=factions.filter(f=>!f.extinct).length;
   sWar.textContent=Math.floor(wars/2);
   sYear.textContent=1+Math.floor(worldTime/8);
@@ -1978,7 +2375,7 @@ function loop(now){
   if(statTimer>0.3){statTimer=0;updateStats();}
 }
 
-/* Arranque: comprobar partida guardada */
+/* Arranque */
 const savedData=loadGame();
 if(savedData){
   document.getElementById('continueBox').classList.add('show');
@@ -1987,7 +2384,6 @@ if(savedData){
     const elapsed=restoreGame(savedData);
     buildRealmBar();buildTabs();buildTools();
     togglePanel(false);
-    // Simular tiempo offline
     if(elapsed>0){
       toast(`⏳ Simulando ${Math.round(elapsed)}s offline...`);
       setTimeout(()=>{
