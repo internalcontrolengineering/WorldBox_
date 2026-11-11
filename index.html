@@ -465,23 +465,24 @@ const KIND={
   bear:{hp:150,speed:2.0,size:1.45,color:'#6b4423',dmg:24,hunter:true,fierce:true},
   tiger:{hp:115,speed:3.3,size:1.2,color:'#e08a20',dmg:21,hunter:true,fierce:true},
   lion:{hp:135,speed:2.7,size:1.3,color:'#d4a017',dmg:25,hunter:true,fierce:true},
-  croc:{hp:125,speed:1.5,size:1.35,color:'#3a6b3a',dmg:19,hunter:true,fierce:true,swim:true},
-  shark:{hp:170,speed:2.5,size:1.5,color:'#5a7a9a',dmg:30,hunter:true,fierce:true,swim:true},
+  croc:{hp:125,speed:1.5,size:1.35,color:'#3a6b3a',dmg:19,hunter:true,fierce:true,swim:true,amphibious:true},
+  shark:{hp:170,speed:2.5,size:1.5,color:'#5a7a9a',dmg:30,hunter:true,fierce:true,swim:true,aquaticOnly:true},
   bird:{hp:14,speed:3.6,size:0.7,color:'#bfe3ff',dmg:0,flying:true},
   dragon:{hp:1000,speed:3.0,size:2.5,color:'#cc3a1a',dmg:50,flying:true,monster:true,fire:true},
   demon:{hp:420,speed:2.6,size:1.7,color:'#a02828',dmg:32,monster:true},
   zombie:{hp:90,speed:0.95,size:1.05,color:'#6f9a4a',dmg:12,monster:true,infect:true},
   alien:{hp:280,speed:3.3,size:1.45,color:'#4ce69a',dmg:26,flying:true,monster:true},
   necro:{hp:320,speed:1.5,size:1.35,color:'#5b3a86',dmg:22,monster:true,summon:true},
-  kraken:{hp:800,speed:2.0,size:2.5,color:'#2e4f80',dmg:42,monster:true,swim:true},
+  kraken:{hp:800,speed:2.0,size:2.5,color:'#2e4f80',dmg:42,monster:true,swim:true,aquaticOnly:true},
   giant:{hp:1600,speed:1.0,size:3.1,color:'#8a6a4a',dmg:65,monster:true},
   /* Vehículos / transportes */
-  fishing_boat:{hp:80,speed:2.2,size:1.6,color:'#c8a060',dmg:0,swim:true,boat:true},
-  warship:{hp:280,speed:2.4,size:2.1,color:'#3a4a5a',dmg:35,swim:true,boat:true,hunter:true},
-  plane:{hp:120,speed:4.5,size:1.8,color:'#d0d8e8',dmg:0,flying:true,vehicle:true},
-  fighter:{hp:160,speed:5.2,size:1.6,color:'#5a6a7a',dmg:28,flying:true,vehicle:true,hunter:true},
-  car:{hp:70,speed:3.4,size:1.3,color:'#c04040',dmg:0,vehicle:true},
-  truck:{hp:110,speed:2.6,size:1.7,color:'#4a6a40',dmg:0,vehicle:true},
+  fishing_boat:{hp:80,speed:2.2,size:1.6,color:'#c8a060',dmg:0,swim:true,boat:true,fish:true},
+  merchant_ship:{hp:140,speed:2.0,size:1.9,color:'#d4a84a',dmg:0,swim:true,boat:true,trade:true},
+  warship:{hp:280,speed:2.4,size:2.1,color:'#3a4a5a',dmg:35,swim:true,boat:true,military:true,hunter:true},
+  plane:{hp:120,speed:4.5,size:1.8,color:'#d0d8e8',dmg:0,flying:true,vehicle:true,trade:true},
+  fighter:{hp:160,speed:5.2,size:1.6,color:'#5a6a7a',dmg:28,flying:true,vehicle:true,military:true,hunter:true},
+  car:{hp:70,speed:3.4,size:1.3,color:'#c04040',dmg:0,vehicle:true,trade:true},
+  truck:{hp:110,speed:2.6,size:1.7,color:'#4a6a40',dmg:0,vehicle:true,trade:true},
 };
 
 const FCOL=['#e8503a','#3a8fe8','#e8c33a','#43c96b','#b45ae0','#e07a3a','#3ad6c9','#e04a9a'];
@@ -592,13 +593,165 @@ function logEvent(type,realmName,msg){
 function newFaction(x,y,name){
   const id=factions.length;
   const f={id,name:name||randName(),color:FCOL[id%FCOL.length],x,y,
-    houses:[],pop:0,food:15,wood:10,stone:5,iron:0,gold:0,gems:0,
+    houses:[],pop:0,food:20,wood:12,stone:6,iron:0,gold:2,gems:0,
     discovered:{wood:true,stone:true,food:true},discoveryProgress:{},
-    religion:Math.random()<0.4?pick(RELIG):null,war:{},king:null,age:0,tech:0,extinct:false,
-    territory:0,buildings:{chozas:0,casas:0,talleres:0,templos:0}};
+    religion:Math.random()<0.4?pick(RELIG):null,war:{},ally:{},king:null,age:0,tech:0,extinct:false,
+    territory:0,buildings:{chozas:0,casas:0,talleres:0,templos:0},
+    ships:0,fighters:0,boats:0,cars:0,missionCd:0,tradeCd:0,buildMilCd:0};
   factions.push(f);
   logEvent('good',f.name,`🏰 Reino fundado`);
   return f;
+}
+
+function countFactionUnits(f,kind){
+  let n=0;
+  for(const u of entities)if(!u.dead&&u.faction===f.id&&u.kind===kind)n++;
+  return n;
+}
+function factionMilitary(f){
+  let ships=0,fighters=0,boats=0,cars=0;
+  for(const u of entities){
+    if(u.dead||u.faction!==f.id)continue;
+    if(u.kind==='warship')ships++;
+    else if(u.kind==='fighter')fighters++;
+    else if(u.kind==='fishing_boat')boats++;
+    else if(u.kind==='car'||u.kind==='truck')cars++;
+  }
+  f.ships=ships;f.fighters=fighters;f.boats=boats;f.cars=cars;
+  return {ships,fighters,boats,cars,power:ships*3+fighters*2};
+}
+function tryBuildMilitary(f){
+  // Convertir recursos en barcos/aviones de guerra si hace falta
+  const mil=factionMilitary(f);
+  const underAttack=Object.keys(f.war).some(k=>f.war[k]);
+  if(!underAttack&&mil.power>=2)return;
+  // Prioridad: aviones de combate, luego buques
+  if(mil.fighters<2&&f.iron>=8&&f.wood>=10&&f.gold>=4){
+    f.iron-=8;f.wood-=10;f.gold-=4;
+    const p={x:f.x+rnd(-3,3),y:f.y+rnd(-3,3)};
+    const u=spawn('fighter',p.x,p.y);
+    if(u){u.faction=f.id;logEvent('war',f.name,`🛩️ Avión de guerra construido`);toast(`🛩️ ${f.name} construyó un caza`);}
+  }else if(mil.ships<2&&f.wood>=12&&f.iron>=6&&f.gold>=3){
+    f.wood-=12;f.iron-=6;f.gold-=3;
+    const p=placeOnWater(f.x,f.y,20);
+    const u=spawn('warship',p.x,p.y);
+    if(u){u.faction=f.id;logEvent('war',f.name,`⚔️ Buque de guerra construido`);toast(`⚔️ ${f.name} construyó un buque`);}
+  }else if(mil.boats<1&&f.wood>=6){
+    f.wood-=6;
+    const p=placeOnWater(f.x,f.y,20);
+    const u=spawn('fishing_boat',p.x,p.y);
+    if(u){u.faction=f.id;logEvent('good',f.name,`🎣 Barco de pesca construido`);}
+  }
+}
+function tryFormAlliance(f){
+  // Si está en guerra y sin fuerza militar, busca aliado con barcos/aviones
+  const mil=factionMilitary(f);
+  if(mil.power>=2)return;
+  const enemies=Object.keys(f.war).filter(k=>f.war[k]).map(k=>+k);
+  if(!enemies.length)return;
+  for(const o of factions){
+    if(o.extinct||o.id===f.id||f.ally[o.id]||f.war[o.id])continue;
+    const om=factionMilitary(o);
+    if(om.power<1)continue;
+    // Alianza: intercambiar algo de oro/comida
+    if(f.gold>=3||f.food>=10){
+      if(f.gold>=3){f.gold-=3;o.gold+=2;}
+      else{f.food-=10;o.food+=6;}
+      f.ally[o.id]=true;o.ally[f.id]=true;
+      // Aliado declara guerra a los enemigos del reinado
+      for(const eid of enemies){
+        if(!o.war[eid]&&factions[eid]&&!factions[eid].extinct){
+          o.war[eid]=true;factions[eid].war[o.id]=true;
+        }
+      }
+      logEvent('good',f.name,`🤝 Alianza con ${o.name} (ayuda militar)`);
+      toast(`🤝 ${f.name} + ${o.name} aliados`);
+      // Aliado envía algo de refuerzo
+      sendMilitaryStrike(o,factions[enemies[0]]);
+      return;
+    }
+  }
+}
+function sendMilitaryStrike(attacker,defender){
+  if(!attacker||!defender||attacker.extinct||defender.extinct)return;
+  const mil=factionMilitary(attacker);
+  let sent=0;
+  // Enviar cazas
+  for(const u of entities){
+    if(u.dead||u.faction!==attacker.id)continue;
+    if(u.kind==='fighter'||u.kind==='warship'){
+      u.target={x:defender.x+rnd(-4,4),y:defender.y+rnd(-4,4)};
+      u.mission='attack';
+      u.missionTarget=defender.id;
+      sent++;
+    }
+  }
+  if(sent>0){
+    logEvent('war',attacker.name,`⚔️ Ofensiva militar vs ${defender.name} (${sent} unidades)`);
+    spawnEffect(defender.x,defender.y,4,'#e8503a','ring');
+    toast(`⚔️ ${attacker.name} ataca a ${defender.name}`);
+  }
+}
+function hasNearbyWater(x,y,rad){
+  const r=rad|0;
+  for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
+    const tx=(x+dx)|0,ty=(y+dy)|0;
+    if(tx<0||ty<0||tx>=MAP_W||ty>=MAP_H)continue;
+    if(WATER(terrain[ty*MAP_W+tx]))return true;
+  }
+  return false;
+}
+function sendTradeMission(from,to){
+  if(!from||!to||from.extinct||to.extinct)return;
+  const seaRoute=hasNearbyWater(from.x,from.y,12)&&hasNearbyWater(to.x,to.y,12);
+  // Preferir barco mercante si hay ruta marítima; si no, avión/coche/camión
+  let trader=null, ship=null, landAir=null;
+  for(const u of entities){
+    if(u.dead||u.faction!==from.id)continue;
+    if(!(KIND[u.kind]&&KIND[u.kind].trade))continue;
+    if(u.kind==='merchant_ship')ship=u;
+    else if(!landAir)landAir=u;
+  }
+  if(seaRoute&&ship)trader=ship;
+  else if(landAir)trader=landAir;
+  else if(ship)trader=ship;
+
+  if(!trader){
+    if(seaRoute&&from.wood>=8&&from.gold>=2){
+      from.wood-=8;from.gold-=2;
+      const p=placeOnWater(from.x,from.y,18);
+      trader=spawn('merchant_ship',p.x,p.y);
+      if(trader)trader.faction=from.id;
+    }else if(from.wood>=4&&from.gold>=1){
+      from.wood-=4;from.gold-=1;
+      const p=placeOnLand(from.x,from.y,6);
+      trader=spawn('car',p.x,p.y);
+      if(trader)trader.faction=from.id;
+    }else return;
+  }
+  if(!trader)return;
+
+  // Destino: agua cerca del otro reino si es barco; si no, el centro
+  if(trader.kind==='merchant_ship'){
+    const wp=placeOnWater(to.x,to.y,18);
+    trader.target={x:wp.x,y:wp.y};
+  }else{
+    trader.target={x:to.x,y:to.y};
+  }
+  trader.mission='trade';
+  trader.missionTarget=to.id;
+  // Barco mercante lleva más carga
+  const cap=trader.kind==='merchant_ship'?1.6:1;
+  trader.tradeCargo={
+    food:Math.min(Math.floor(8*cap),from.food|0),
+    wood:Math.min(Math.floor(5*cap),from.wood|0),
+    gold:Math.min(Math.floor(2*cap),from.gold|0)
+  };
+  from.food-=trader.tradeCargo.food;
+  from.wood-=trader.tradeCargo.wood;
+  from.gold-=trader.tradeCargo.gold;
+  const icon=trader.kind==='merchant_ship'?'🚢':(trader.kind==='plane'?'✈️':'🚗');
+  logEvent('good',from.name,`${icon} Misión comercial → ${to.name}`);
 }
 
 function expandTerritory(f){
@@ -675,13 +828,41 @@ function factionTick(dt){
   for(let i=0;i<factions.length;i++){
     const f=factions[i];if(f.extinct)continue;
     f.age+=dt;
+    if(f.missionCd>0)f.missionCd-=dt;
+    if(f.tradeCd>0)f.tradeCd-=dt;
+    if(f.buildMilCd>0)f.buildMilCd-=dt;
+
+    // Consumo de comida por población (crecimiento basado en recursos)
     if(f.pop>0){
+      f.food-=f.pop*0.012*dt;
+      if(f.food<0){
+        // Hambre: pierde población lenta
+        if(Math.random()<dt*0.08){
+          for(const u of entities){
+            if(!u.dead&&u.kind==='human'&&u.faction===f.id){killUnit(u);f.pop=Math.max(0,f.pop-1);logEvent('bad',f.name,`☠️ Hambre`);break;}
+          }
+        }
+        f.food=0;
+      }else if(f.food>f.pop*2&&f.pop<80&&Math.random()<dt*0.04*cfg.birthRate){
+        // Abundancia → nacer gente cerca del centro
+        const p=placeOnLand(f.x,f.y,6);
+        const u=spawn('human',p.x,p.y,Math.random()<0.5?0:1);
+        if(u){u.faction=f.id;f.pop++;f.food-=3;}
+      }
+      // Producción pasiva por territorio y edificios
+      f.food+=f.territory*0.002*dt+(f.buildings.casas||0)*0.01*dt;
+      f.wood+= (f.buildings.talleres||0)*0.015*dt + f.territory*0.001*dt;
+      f.stone+=f.territory*0.0008*dt;
+      if(f.discovered.iron)f.iron+=0.004*dt;
+      if(f.discovered.gold)f.gold+=0.003*dt;
+
       const targetHouses=Math.max(1,Math.floor(f.pop*0.6));
-      if(f.houses.length<targetHouses&&Math.random()<dt*0.4){
+      if(f.houses.length<targetHouses&&f.wood>=3&&Math.random()<dt*0.35){
         const a=Math.random()*Math.PI*2,r=rnd(1,4);
         const hx=f.x+Math.cos(a)*r,hy=f.y+Math.sin(a)*r;
         if(hx>0&&hy>0&&hx<MAP_W&&hy<MAP_H&&!WATER(terrain[(hy|0)*MAP_W+(hx|0)])){
           f.houses.push({x:hx,y:hy,type:f.pop>10?'casa':'choza'});
+          f.wood-=3;
           if(f.pop>10)f.buildings.casas++;else f.buildings.chozas++;
         }
       }
@@ -693,21 +874,81 @@ function factionTick(dt){
     if(f.discovered.alquimia&&Math.random()<dt*0.15){
       if(f.wood>=3&&f.stone>=2){f.wood-=2;f.stone-=1;f.gold+=1;}
     }
-    if(Math.random()<dt*0.015){
+
+    // Construir barcos de pesca si no hay
+    if(f.buildMilCd<=0){
+      factionMilitary(f);
+      if(f.boats<1&&f.wood>=6&&Math.random()<dt*0.2){
+        f.wood-=6;f.buildMilCd=8;
+        const p=placeOnWater(f.x,f.y,22);
+        const u=spawn('fishing_boat',p.x,p.y);
+        if(u){u.faction=f.id;logEvent('good',f.name,`🎣 Flota pesquera`);}
+      }
+      // Si en guerra o rico, militarizarse
+      const atWar=Object.keys(f.war).some(k=>f.war[k]);
+      if((atWar||f.gold>=10)&&Math.random()<dt*0.25){
+        tryBuildMilitary(f);f.buildMilCd=6;
+      }
+      if(atWar&&factionMilitary(f).power<1){
+        tryFormAlliance(f);f.buildMilCd=10;
+      }
+    }
+
+    // Comercio con reinos vecinos (no enemigos)
+    if(f.tradeCd<=0&&f.pop>4&&Math.random()<dt*0.04){
+      let best=null,bd=1e9;
+      for(const o of factions){
+        if(o.extinct||o.id===f.id||f.war[o.id])continue;
+        const d=Math.hypot(o.x-f.x,o.y-f.y);
+        if(d<55&&d<bd){bd=d;best=o;}
+      }
+      if(best){sendTradeMission(f,best);f.tradeCd=25;}
+    }
+
+    // Declarar guerra y enviar ofensiva militar
+    if(Math.random()<dt*0.012){
       for(let j=0;j<factions.length;j++){
         if(j===i)continue;const o=factions[j];if(o.extinct)continue;
+        if(f.ally[j])continue;
         const d=Math.hypot(o.x-f.x,o.y-f.y);
-        if(d<50&&!f.war[j]&&f.pop>5&&o.pop>5&&Math.random()<0.3){
-          f.war[j]=true;o.war[i]=true;logEvent('war',f.name,`⚔️ Guerra contra ${o.name}`);
+        if(d<55&&!f.war[j]&&f.pop>6&&o.pop>4&&Math.random()<0.35){
+          f.war[j]=true;o.war[i]=true;
+          logEvent('war',f.name,`⚔️ Guerra contra ${o.name}`);
+          // Enviar barcos y aviones
+          if(f.missionCd<=0){sendMilitaryStrike(f,o);f.missionCd=18;}
         }
       }
     }
-    if(Math.random()<dt*0.005){
+    // Durante guerra, reenviar ataques
+    if(f.missionCd<=0){
       for(const k in f.war){
-        if(f.war[k]&&Math.random()<0.5){
+        if(f.war[k]&&factions[k]&&!factions[k].extinct&&Math.random()<0.4){
+          sendMilitaryStrike(f,factions[k]);f.missionCd=20;break;
+        }
+      }
+    }
+    // Paz espontánea
+    if(Math.random()<dt*0.004){
+      for(const k in f.war){
+        if(f.war[k]&&Math.random()<0.45){
           f.war[k]=false;if(factions[k])factions[k].war[i]=false;
           logEvent('good',f.name,`🕊 Paz con ${factions[k]?factions[k].name:'?'}`);
         }
+      }
+    }
+    // Conquista: si un reino enemigo queda sin población, absorber territorio
+    for(const k in f.war){
+      if(!f.war[k])continue;
+      const o=factions[k];
+      if(o&&!o.extinct&&o.pop<=0){
+        o.extinct=true;
+        logEvent('war',f.name,`🏳️ Conquistó a ${o.name}`);
+        toast(`🏳️ ${f.name} conquistó ${o.name}`);
+        // Transferir algo de recursos
+        f.food+=o.food*0.5;f.wood+=o.wood*0.5;f.gold+=o.gold*0.5;f.iron+=o.iron*0.5;
+        for(let ti=0;ti<ownership.length;ti++)if(ownership[ti]===o.id+1)ownership[ti]=f.id+1;
+        f.war[k]=false;
+        expandTerritory(f);
       }
     }
     if(f.pop<=0&&!f.extinct){
@@ -720,28 +961,36 @@ function factionTick(dt){
 /* IA */
 const AI_DT=0.1;
 function randomNear(u,radius){
-  const a=Math.random()*Math.PI*2,r=rnd(2,radius);
-  return {x:clamp(u.x+Math.cos(a)*r,1,MAP_W-2),y:clamp(u.y+Math.sin(a)*r,1,MAP_H-2)};
+  return pickWalkTarget(u,radius||14);
 }
 function findFoe(u){
   let best=null,bd=1e9;
-  const isFierce = KIND[u.kind] && KIND[u.kind].fierce;
-  const range = u.monster || isFierce ? 16 : 12;
+  const KU = KIND[u.kind];
+  const isFierce = KU && KU.fierce;
+  const isMil = KU && KU.military;
+  const range = u.monster || isFierce || isMil ? 18 : 12;
   queryNear(u.x,u.y,range,o=>{
     if(o===u||o.dead)return;
     let hostile=false;
     if(u.monster){
       hostile = (o.kind==='human');
+    }else if(isMil && u.faction>=0){
+      // Unidades militares atacan humanos y militares enemigos en guerra
+      const fa=factions[u.faction];
+      if(fa && o.faction>=0 && o.faction!==u.faction && fa.war[o.faction]){
+        hostile = (o.kind==='human' || (KIND[o.kind]&&KIND[o.kind].military));
+      }
+      if(o.monster) hostile=true;
     }else if(u.kind==='human'){
       if(o.monster) hostile=true;
-      else if(KIND[o.kind] && KIND[o.kind].fierce) hostile=true; // humans hunt fierce animals
+      else if(KIND[o.kind] && KIND[o.kind].fierce) hostile=true;
       else if(o.kind==='human' && u.faction>=0 && o.faction>=0 && u.faction!==o.faction){
         const fa=factions[u.faction];
         if(fa && fa.war[o.faction]) hostile=true;
       }
     }else if(u.hunter){
       if(o.prey===true) hostile=true;
-      if(isFierce && o.kind==='human') hostile=true; // fierce animals attack humans
+      if(isFierce && o.kind==='human') hostile=true;
     }
     if(hostile){
       const d=dist2(u,o);
@@ -878,16 +1127,35 @@ function preyAI(u){
 /* MOVIMIENTO */
 function tileAt(x,y){const ix=x|0,iy=y|0;if(ix<0||iy<0||ix>=MAP_W||iy>=MAP_H)return T.DEEP;return terrain[iy*MAP_W+ix];}
 function canEnter(u,t){
+  const K=KIND[u.kind];
   if(u.flying)return true;
+  // Montañas / nieve elevadas: solo voladores
+  if(t===T.MOUNTAIN||t===T.SNOW)return false;
+  if(t===T.LAVA)return false;
   if(WATER(t)){
-    // Solo entidades acuáticas (swim) pueden entrar al agua. Humanos y animales terrestres NO.
-    if(KIND[u.kind]&&KIND[u.kind].swim)return true;
+    if(K&&K.swim)return true;
     return false;
   }
-  // Barcos solo en agua: si están en tierra se quedan atascados / no se mueven bien
-  if(KIND[u.kind]&&KIND[u.kind].boat&&!WATER(t))return false;
-  if(t===T.LAVA)return false;
+  if(K&&K.boat)return false;
+  if(K&&K.aquaticOnly)return false;
   return true;
+}
+function pickWalkTarget(u,radius){
+  // Siempre devolver un destino válido para que no se queden quietos
+  for(let i=0;i<12;i++){
+    const a=Math.random()*Math.PI*2,r=rnd(2,radius||14);
+    const x=clamp(u.x+Math.cos(a)*r,1,MAP_W-2);
+    const y=clamp(u.y+Math.sin(a)*r,1,MAP_H-2);
+    if(canEnter(u,tileAt(x,y)))return {x,y};
+  }
+  const K=KIND[u.kind];
+  if(K&&(K.boat||K.aquaticOnly||K.swim)&&!K.amphibious){
+    const w=placeOnWater(u.x,u.y,30);
+    return {x:w.x,y:w.y};
+  }
+  if(u.flying)return {x:clamp(u.x+rnd(-10,10),1,MAP_W-2),y:clamp(u.y+rnd(-10,10),1,MAP_H-2)};
+  const land=placeOnLand(u.x,u.y,25);
+  return {x:land.x,y:land.y};
 }
 function moveUnits(dt){
   for(let i=0;i<entities.length;i++){
@@ -895,37 +1163,52 @@ function moveUnits(dt){
     const t=tileAt(u.x,u.y);
     if(t===T.LAVA&&!u.flying){u.hp-=dt*40;if(u.hp<=0){killUnit(u);continue;}}
     else if(fire[(u.y|0)*MAP_W+(u.x|0)]>0&&!u.flying){u.hp-=dt*22;if(u.hp<=0){killUnit(u);continue;}}
-    // Empujar fuera del agua a quien no pueda nadar
+    // Reubicar si está en casilla ilegal, pero asignar nuevo destino para seguir moviéndose
     if(WATER(t) && !u.flying && !(KIND[u.kind]&&KIND[u.kind].swim)){
       const land=placeOnLand(u.x,u.y,20);
-      u.x=land.x; u.y=land.y; u.target=null;
-      continue;
-    }
-    // Barcos fuera del agua → buscar agua
-    if(KIND[u.kind]&&KIND[u.kind].boat && !WATER(t)){
+      u.x=land.x; u.y=land.y;
+      u.target=pickWalkTarget(u,12);
+      // no continue: puede moverse este frame hacia el nuevo target
+    }else if(!WATER(t) && !u.flying && KIND[u.kind] && (KIND[u.kind].boat || KIND[u.kind].aquaticOnly)){
       const w=placeOnWater(u.x,u.y,25);
-      u.x=w.x; u.y=w.y; u.target=null;
-      continue;
+      u.x=w.x; u.y=w.y;
+      u.target=pickWalkTarget(u,14);
+    }else if((t===T.MOUNTAIN||t===T.SNOW) && !u.flying){
+      const land=placeOnLand(u.x,u.y,15);
+      u.x=land.x; u.y=land.y;
+      u.target=pickWalkTarget(u,12);
     }
-    if(!u.target)continue;
+    // Sin target → elegir uno para no quedarse parado
+    if(!u.target){
+      u.target=pickWalkTarget(u,12);
+    }
     let dx=u.target.x-u.x,dy=u.target.y-u.y;
     const d=Math.hypot(dx,dy);
-    if(d<0.4){u.target=null;continue;}
+    if(d<0.35){
+      u.target=pickWalkTarget(u,12);
+      continue;
+    }
     dx/=d;dy/=d;
     let sp=u.speed*(u.speedBoost||1);
-    if(WATER(t))sp*=0.62;
-    if(t===T.MOUNTAIN||t===T.SNOW)sp*=0.6;
+    if(WATER(tileAt(u.x,u.y)))sp*=0.62;
     if(u.kind==='human'&&u.age<16)sp*=0.8;
     let nx=u.x+dx*sp*dt,ny=u.y+dy*sp*dt;
     if(!canEnter(u,tileAt(nx,ny))){
       let moved=false;
-      for(const ang of [0.6,-0.6,1.2,-1.2,1.9,-1.9]){
+      for(const ang of [0.5,-0.5,1.0,-1.0,1.5,-1.5,2.0,-2.0,2.8]){
         const ca=Math.cos(ang),sa=Math.sin(ang);
         const rx=dx*ca-dy*sa,ry=dx*sa+dy*ca;
         const tx2=u.x+rx*sp*dt,ty2=u.y+ry*sp*dt;
         if(canEnter(u,tileAt(tx2,ty2))){nx=tx2;ny=ty2;moved=true;break;}
       }
-      if(!moved){u.target=randomNear(u,12);continue;}
+      if(!moved){
+        u.target=pickWalkTarget(u,14);
+        // intentar un paso corto en dirección aleatoria válida
+        const alt=u.target;
+        const adx=alt.x-u.x,ady=alt.y-u.y,ad=Math.hypot(adx,ady)||1;
+        nx=u.x+(adx/ad)*sp*dt; ny=u.y+(ady/ad)*sp*dt;
+        if(!canEnter(u,tileAt(nx,ny)))continue;
+      }
     }
     u.x=clamp(nx,0.5,MAP_W-0.5);u.y=clamp(ny,0.5,MAP_H-0.5);
   }
@@ -1006,12 +1289,133 @@ function detonate(p){
   if(p.napalm)for(let i=0;i<14;i++)igniteTile(p.tx+rnd(-rad,rad),p.ty+rnd(-rad,rad));
 }
 
+function vehicleAI(u){
+  if(u.hp<=0){killUnit(u);return;}
+  if(u.atkCd>0)u.atkCd-=AI_DT;
+  const K=KIND[u.kind];
+  // —— Pesca ——
+  if(K&&K.fish){
+    if(!u.target||Math.hypot(u.target.x-u.x,u.target.y-u.y)<1||Math.random()<0.05){
+      // Buscar agua lejos de la costa
+      for(let tries=0;tries<8;tries++){
+        const a=Math.random()*6.283,r=rnd(3,14);
+        const nx=clamp(u.x+Math.cos(a)*r,1,MAP_W-2),ny=clamp(u.y+Math.sin(a)*r,1,MAP_H-2);
+        if(WATER(tileAt(nx,ny))){u.target={x:nx,y:ny};break;}
+      }
+    }
+    if(u.faction>=0&&factions[u.faction]&&WATER(tileAt(u.x,u.y))&&Math.random()<0.35){
+      factions[u.faction].food+=0.35;
+      if(Math.random()<0.02)spawnEffect(u.x,u.y,0.6,'#60c0ff');
+    }
+    return;
+  }
+  // —— Militar: atacar reino objetivo ——
+  if(K&&K.military){
+    if(u.mission==='attack'&&u.missionTarget!=null&&factions[u.missionTarget]&&!factions[u.missionTarget].extinct){
+      const def=factions[u.missionTarget];
+      u.target={x:def.x+rnd(-3,3),y:def.y+rnd(-3,3)};
+      // Daño al llegar cerca del centro enemigo
+      if(Math.hypot(u.x-def.x,u.y-def.y)<8){
+        // Atacar unidades enemigas
+        const foe=findFoe(u);
+        if(foe){u.target={x:foe.x,y:foe.y};if(dist2(u,foe)<4)attack(u,foe);}
+        // Bombardeo de territorio / casas
+        if(Math.random()<0.15){
+          def.food=Math.max(0,def.food-2);
+          def.wood=Math.max(0,def.wood-1);
+          if(def.houses.length&&Math.random()<0.3){
+            def.houses.pop();
+            spawnEffect(def.x+rnd(-2,2),def.y+rnd(-2,2),1.5,'#ff6020','boom');
+          }
+          // Matar civiles
+          queryNear(u.x,u.y,5,o=>{
+            if(!o.dead&&o.kind==='human'&&o.faction===def.id&&!o.immortal){
+              o.hp-=u.dmg*0.6;if(o.hp<=0)killUnit(o);
+            }
+          });
+          spawnEffect(u.x,u.y,1.2,'#ff4030');
+        }
+      }
+      return;
+    }
+    // Sin misión: patrullar o buscar enemigos de guerra
+    const foe=findFoe(u);
+    if(foe){u.target={x:foe.x,y:foe.y};if(dist2(u,foe)<3.5)attack(u,foe);return;}
+    if(u.faction>=0&&factions[u.faction]){
+      for(const k in factions[u.faction].war){
+        if(factions[u.faction].war[k]&&factions[k]&&!factions[k].extinct){
+          u.mission='attack';u.missionTarget=+k;
+          return;
+        }
+      }
+      const f=factions[u.faction];
+      if(!u.target||Math.random()<0.04)u.target={x:f.x+rnd(-10,10),y:f.y+rnd(-10,10)};
+    }
+    return;
+  }
+  // —— Comercio ——
+  if(K&&K.trade){
+    if(u.mission==='trade'&&u.missionTarget!=null&&factions[u.missionTarget]&&!factions[u.missionTarget].extinct){
+      const dest=factions[u.missionTarget];
+      const isShip=u.kind==='merchant_ship';
+      // Barco se dirige a agua cerca del destino; resto al centro
+      if(isShip){
+        if(!u.target||Math.random()<0.02){
+          const wp=placeOnWater(dest.x,dest.y,18);
+          u.target={x:wp.x,y:wp.y};
+        }
+      }else{
+        u.target={x:dest.x,y:dest.y};
+      }
+      const arriveDist=isShip?10:3;
+      if(Math.hypot(u.x-dest.x,u.y-dest.y)<arriveDist){
+        const cargo=u.tradeCargo||{food:5,wood:3,gold:1};
+        const bonus=isShip?1.25:1;
+        dest.food+=(cargo.food||0)*bonus;
+        dest.wood+=(cargo.wood||0)*bonus;
+        dest.gold+=((cargo.gold||0)+1)*bonus;
+        if(u.faction>=0&&factions[u.faction]){
+          const home=factions[u.faction];
+          home.food+=Math.min(isShip?10:6,dest.food*0.12|0);
+          home.gold+=isShip?2:1;
+          home.stone+=isShip?3:2;
+          logEvent('good',home.name,isShip?`🚢 Comercio marítimo con ${dest.name}`:`💰 Comercio con ${dest.name} completado`);
+          spawnEffect(u.x,u.y,2,'#ffd040','ring');
+        }
+        u.mission=null;u.missionTarget=null;u.tradeCargo=null;
+        if(u.faction>=0&&factions[u.faction]){
+          const home=factions[u.faction];
+          if(isShip){
+            const wp=placeOnWater(home.x,home.y,18);
+            u.target={x:wp.x,y:wp.y};
+          }else u.target={x:home.x,y:home.y};
+        }
+      }
+      return;
+    }
+    if(u.faction>=0&&factions[u.faction]){
+      const f=factions[u.faction];
+      if(!u.target||Math.random()<0.03){
+        if(u.kind==='merchant_ship'){
+          const wp=placeOnWater(f.x,f.y,14);
+          u.target={x:wp.x,y:wp.y};
+        }else u.target={x:f.x+rnd(-5,5),y:f.y+rnd(-5,5)};
+      }
+    }
+    return;
+  }
+  // Default deambular
+  if(!u.target||Math.hypot(u.target.x-u.x,u.target.y-u.y)<1.2||Math.random()<0.04)u.target=randomNear(u,12);
+}
+
 let aiAcc=0;
 function aiTick(dt){
   buildGrid();
   for(let i=0;i<entities.length;i++){
     const u=entities[i];if(u.dead)continue;
+    const K=KIND[u.kind];
     if(u.kind==='human')humanAI(u);
+    else if(K&&(K.boat||K.vehicle||K.fish||K.military||K.trade))vehicleAI(u);
     else if(u.monster)monsterAI(u);
     else if(u.hunter)hunterAI(u);
     else preyAI(u);
@@ -1215,9 +1619,9 @@ function drawAnimalSprite(ctx, sx, sy, size, kind, col){
     ctx.fillRect(sx - s*0.4, sy - s*0.35, s*0.3, s*0.2); // wing
     ctx.fillStyle = '#f08020';
     ctx.fillRect(sx + s*0.2, sy - s*0.15, s*0.2, s*0.1);
-  } else if(kind === 'fishing_boat' || kind === 'warship'){
+  } else if(kind === 'fishing_boat' || kind === 'warship' || kind === 'merchant_ship'){
     // casco
-    ctx.fillStyle = kind==='warship' ? '#2a3545' : '#8a6030';
+    ctx.fillStyle = kind==='warship' ? '#2a3545' : (kind==='merchant_ship' ? '#6a4a20' : '#8a6030');
     ctx.beginPath();
     ctx.moveTo(sx - s*0.7, sy + s*0.15);
     ctx.lineTo(sx - s*0.55, sy - s*0.2);
@@ -1225,9 +1629,8 @@ function drawAnimalSprite(ctx, sx, sy, size, kind, col){
     ctx.lineTo(sx + s*0.7, sy + s*0.15);
     ctx.closePath(); ctx.fill();
     // cubierta
-    ctx.fillStyle = kind==='warship' ? '#4a5a6a' : '#c8a060';
+    ctx.fillStyle = kind==='warship' ? '#4a5a6a' : (kind==='merchant_ship' ? '#d4a84a' : '#c8a060');
     ctx.fillRect(sx - s*0.5, sy - s*0.35, s*1.0, s*0.25);
-    // mástil / torre
     if(kind==='fishing_boat'){
       ctx.fillStyle = '#5a3a1a';
       ctx.fillRect(sx - s*0.05, sy - s*0.75, s*0.1, s*0.45);
@@ -1237,12 +1640,25 @@ function drawAnimalSprite(ctx, sx, sy, size, kind, col){
       ctx.lineTo(sx + s*0.45, sy - s*0.45);
       ctx.lineTo(sx, sy - s*0.4);
       ctx.closePath(); ctx.fill();
+    } else if(kind==='merchant_ship'){
+      // mástil + velas + cajas de carga
+      ctx.fillStyle = '#4a3020';
+      ctx.fillRect(sx - s*0.08, sy - s*0.85, s*0.12, s*0.55);
+      ctx.fillStyle = '#f0e8d0';
+      ctx.beginPath();
+      ctx.moveTo(sx + s*0.04, sy - s*0.85);
+      ctx.lineTo(sx + s*0.5, sy - s*0.55);
+      ctx.lineTo(sx + s*0.04, sy - s*0.4);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#a06030';
+      ctx.fillRect(sx - s*0.4, sy - s*0.3, s*0.22, s*0.18);
+      ctx.fillRect(sx - s*0.12, sy - s*0.3, s*0.22, s*0.18);
+      ctx.fillRect(sx + s*0.16, sy - s*0.3, s*0.22, s*0.18);
     } else {
       ctx.fillStyle = '#1a2535';
       ctx.fillRect(sx - s*0.15, sy - s*0.7, s*0.3, s*0.4);
       ctx.fillStyle = '#c03030';
-      ctx.fillRect(sx - s*0.08, sy - s*0.85, s*0.16, s*0.18); // bandera
-      // cañones
+      ctx.fillRect(sx - s*0.08, sy - s*0.85, s*0.16, s*0.18);
       ctx.fillStyle = '#222';
       ctx.fillRect(sx - s*0.55, sy - s*0.15, s*0.2, s*0.08);
       ctx.fillRect(sx + s*0.35, sy - s*0.15, s*0.2, s*0.08);
@@ -1753,37 +2169,49 @@ function placeOnWater(cx,cy,maxR){
   }
   return {x:cx,y:cy};
 }
+function assignToSelected(u){
+  if(!u)return;
+  if(selectedFaction>=0&&factions[selectedFaction]&&!factions[selectedFaction].extinct){
+    u.faction=selectedFaction;
+  }
+}
 addTool('transport','fishBoat','🎣','Barco pesca',(x,y)=>{
   const p=placeOnWater(x,y,12);
-  spawn('fishing_boat',p.x,p.y);
+  const u=spawn('fishing_boat',p.x,p.y);assignToSelected(u);
   playDeliveryAnimation('animals',p.x,p.y);
-  toast('🎣 Barco de pesca');
+  toast(selectedFaction>=0?`🎣 Barco → ${factions[selectedFaction].name}`:'🎣 Barco de pesca');
 },'Pesca');
+addTool('transport','merchant','🚢','Barco mercante',(x,y)=>{
+  const p=placeOnWater(x,y,12);
+  const u=spawn('merchant_ship',p.x,p.y);assignToSelected(u);
+  playDeliveryAnimation('gold',p.x,p.y);
+  toast(selectedFaction>=0?`🚢 Mercante → ${factions[selectedFaction].name}`:'🚢 Barco mercante');
+},'Mercante');
 addTool('transport','warBoat','⚔️','Barco guerra',(x,y)=>{
   const p=placeOnWater(x,y,12);
-  spawn('warship',p.x,p.y);
+  const u=spawn('warship',p.x,p.y);assignToSelected(u);
   playDeliveryAnimation('monster',p.x,p.y);
-  toast('⚔️ Buque de guerra');
+  toast(selectedFaction>=0?`⚔️ Buque → ${factions[selectedFaction].name}`:'⚔️ Buque de guerra');
 },'Guerra');
 addTool('transport','plane','✈️','Avión pasajeros',(x,y)=>{
-  spawn('plane',x,y);
+  const u=spawn('plane',x,y);assignToSelected(u);
   playDeliveryAnimation('bless',x,y);
-  toast('✈️ Avión de pasajeros');
+  toast(selectedFaction>=0?`✈️ Avión → ${factions[selectedFaction].name}`:'✈️ Avión de pasajeros');
 },'Pasajeros');
 addTool('transport','fighter','🛩️','Avión de guerra',(x,y)=>{
-  spawn('fighter',x,y);
+  const u=spawn('fighter',x,y);assignToSelected(u);
   playDeliveryAnimation('bomb',x,y);
-  toast('🛩️ Caza de guerra');
+  toast(selectedFaction>=0?`🛩️ Caza → ${factions[selectedFaction].name}`:'🛩️ Caza de guerra');
 },'Caza');
 addTool('transport','car','🚗','Coche',(x,y)=>{
   const p=placeOnLand(x,y,8);
-  spawn('car',p.x,p.y);
-  toast('🚗 Coche');
+  const u=spawn('car',p.x,p.y);assignToSelected(u);
+  toast(selectedFaction>=0?`🚗 Coche → ${factions[selectedFaction].name}`:'🚗 Coche');
 },'Coche');
 addTool('transport','truck','🚚','Camión',(x,y)=>{
   const p=placeOnLand(x,y,8);
-  spawn('truck',p.x,p.y);
-  toast('🚚 Camión');
+  const u=spawn('truck',p.x,p.y);assignToSelected(u);
+  toast(selectedFaction>=0?`🚚 Camión → ${factions[selectedFaction].name}`:'🚚 Camión');
 },'Camión');
 
 /* Fundar nuevo reino en terreno ya creado */
@@ -2387,7 +2815,9 @@ function serializeEntity(u){
     speed:u.speed,flying:u.flying,monster:u.monster,prey:u.prey,hunter:u.hunter,
     dmg:u.dmg,size:u.size,color:u.color,
     infected:u.infected,shield:u.shield,immortal:u.immortal,speedBoost:u.speedBoost,
-    breedCd:u.breedCd,summonCd:u.summonCd,king:u.king
+    breedCd:u.breedCd,summonCd:u.summonCd,king:u.king,
+    mission:u.mission||null,missionTarget:u.missionTarget!=null?u.missionTarget:null,
+    tradeCargo:u.tradeCargo||null
   };
 }
 function deserializeEntity(d){
@@ -2403,8 +2833,9 @@ function serializeFaction(f){
     houses:f.houses.map(h=>({x:h.x,y:h.y,type:h.type,level:h.level||0,isCapital:!!h.isCapital})),
     pop:f.pop,food:f.food,wood:f.wood,stone:f.stone,iron:f.iron,gold:f.gold,gems:f.gems,
     discovered:f.discovered,discoveryProgress:f.discoveryProgress,
-    religion:f.religion,war:f.war,age:f.age,tech:f.tech,extinct:f.extinct,
-    territory:f.territory,buildings:f.buildings
+    religion:f.religion,war:f.war||{},ally:f.ally||{},age:f.age,tech:f.tech,extinct:f.extinct,
+    territory:f.territory,buildings:f.buildings,
+    missionCd:f.missionCd||0,tradeCd:f.tradeCd||0,buildMilCd:f.buildMilCd||0
   };
 }
 
@@ -2471,6 +2902,14 @@ function restoreGame(data){
     selectedFaction=data.selectedFaction!==undefined?data.selectedFaction:-1;
 
     factions=JSON.parse(JSON.stringify(data.factions||[]));
+    for(const f of factions){
+      if(!f.ally)f.ally={};
+      if(!f.war)f.war={};
+      if(f.missionCd==null)f.missionCd=0;
+      if(f.tradeCd==null)f.tradeCd=0;
+      if(f.buildMilCd==null)f.buildMilCd=0;
+      if(!f.buildings)f.buildings={chozas:0,casas:0,talleres:0,templos:0};
+    }
     entities=(data.entities||[]).map(deserializeEntity);
     nodes=JSON.parse(JSON.stringify(data.nodes||[]));
     realmHistory=data.realmHistory||[];
@@ -2528,9 +2967,22 @@ function autoSaveTick(dt){
   }
 }
 
-window.addEventListener('beforeunload',()=>{if(dirtySave)saveGame();});
+window.addEventListener('beforeunload',()=>{
+  paused=true;
+  if(dirtySave)saveGame();
+});
 document.addEventListener('visibilitychange',()=>{
-  if(document.hidden){if(dirtySave)saveGame();}
+  if(document.hidden){
+    // Pausar al ocultar — NO simular tiempo offline al volver
+    paused=true;
+    if(typeof btnPause!=='undefined'){btnPause.textContent='▶';btnPause.classList.add('on');}
+    if(dirtySave)saveGame();
+  }else{
+    // Al volver a la pestaña: reanudar movimiento y animaciones
+    paused=false;
+    if(typeof btnPause!=='undefined'){btnPause.textContent='⏸';btnPause.classList.remove('on');}
+    last=performance.now(); // evitar salto de dt enorme
+  }
 });
 
 /* BUCLE */
@@ -2610,18 +3062,12 @@ if(savedData){
   document.getElementById('continueBox').classList.add('show');
   document.getElementById('continueBtn').onclick=()=>{
     document.getElementById('setupScreen').classList.add('hidden');
-    const elapsed=restoreGame(savedData);
+    restoreGame(savedData); // sin simulación offline: el mundo queda pausado como se guardó
     buildRealmBar();buildTabs();buildTools();
     togglePanel(false);
-    if(elapsed>0){
-      toast(`⏳ Simulando ${Math.round(elapsed)}s offline...`);
-      setTimeout(()=>{
-        simulateOffline(elapsed);
-        buildRealmBar();
-        buildTools();
-        toast('✅ Mundo actualizado');
-      },100);
-    }
+    paused=false;
+    if(typeof btnPause!=='undefined'){btnPause.textContent='⏸';btnPause.classList.remove('on');}
+    toast('▶ Partida reanudada (sin tiempo offline)');
     requestAnimationFrame(loop);
   };
 }
